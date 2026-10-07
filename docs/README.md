@@ -76,6 +76,8 @@ The window system, the toolkit that draws the window decorations and the OpenGL 
 
 `make valgrind` always loads the first file and adds the second only when the installed valgrind accepts it. `--keep-debuginfo=yes` is required: the Mesa driver is unloaded before the leak check, and without it its frames lose their library name. A clean run ends with every lost and reachable counter at 0 and `ERROR SUMMARY: 0 errors`, with the system GLFW or the static one. No entry matches GLFW itself: it frees its own state, and its frames sit under every callback of the program, so matching them would also hide the program's own leaks.
 
+Without the suppression files, a Wayland run reports no definitely lost block. On X11, libX11 keeps the locale (Xlc), input method and resource-quark caches it builds during `glfwInit` until the process ends, and valgrind reports them as definitely lost; none of them comes from the program.
+
 ## How it works
 
 - **Loading** (`src/obj/`, `src/image/`): the model and the texture are read before the window opens, so a bad file fails without one. The `.obj` is parsed in two passes, vertices first, so a face may name any vertex; corners can be `v`, `v/vt`, `v//vn` or `v/vt/vn`, and negative indices count back from the face's line. Polygons are ear-clipped in the plane of their Newell normal and degenerate triangles are dropped. The BMP loader reads 24 and 32-bit files, uncompressed or with byte-aligned `BI_BITFIELDS` masks, bottom-up or top-down, with any header from `BITMAPINFOHEADER` to V5. Errors name the file, and the line for a `.obj`.
