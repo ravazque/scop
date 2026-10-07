@@ -9,3 +9,45 @@ scop is an introduction to **GPU rendering**: a small program written in **C** w
 The object can be rotated and translated around its three main axes, with the origin at its center. Its faces are shaded in distinct tones of gray, and a dedicated key toggles a texture on and off with a smooth transition between both views.
 
 Apart from window and event management, everything is implemented from scratch: the `.obj` parser, the matrix math, the shader loading and the texture loading.
+
+## Instructions
+
+### Requirements
+
+- A C compiler, `make` and `pkg-config`.
+- GLFW 3 (the only external library, used for the window and the input) and an OpenGL 4.1 driver.
+
+`make` uses the system GLFW when `pkg-config` finds it. Otherwise it builds a static GLFW from the sources placed in `lib/glfw-3.5.1` (this needs `cmake`), and stops with a message when neither is available.
+
+### Build and run
+
+```bash
+make                                # builds ./scop
+./scop <model.obj> [width height]   # window size: 1280x720 (HD) to 3840x2160 (4K), 1280x720 by default
+make run                            # ./scop resources/42.obj (ARGS="..." to change it)
+make clean / fclean / re
+```
+
+Run it from the repository root, so `shaders/` is found.
+
+| Key | Action |
+|---|---|
+| `ESC` | quit |
+| `H` | show / hide the frame rate and the model path in the window title |
+
+The window title is `scop` by default and `scop - FPS:<rate> - <model path>` while `H` has it shown. `Ctrl+C` in the terminal also closes the program cleanly.
+
+### Valgrind
+
+```bash
+make valgrind    # accepts ARGS too
+```
+
+The window system, the toolkit that draws the window decorations and the OpenGL driver allocate global state that they keep until the process exits. Two suppression files in `docs/` silence only that code, matched by library, never by a project function:
+
+| File | Valgrind | Contents |
+|---|---|---|
+| [valgrind.supp](valgrind.supp) | every version | GLFW, Wayland, X11, GTK / libdecor, GLib, D-Bus, fontconfig, Mesa, NVIDIA, libstdc++ and the glibc loader |
+| [valgrind_recent.supp](valgrind_recent.supp) | 3.22 or newer | Two NVIDIA start-up errors whose kinds (`ReallocZero`, `BadSize`) older versions do not know |
+
+`make valgrind` always loads the first file and adds the second only when the installed valgrind accepts it. `--keep-debuginfo=yes` is required: the Mesa driver is unloaded before the leak check, and without it its frames lose their library name. A clean run ends with every lost and reachable counter at 0 and `ERROR SUMMARY: 0 errors`.

@@ -1,0 +1,321 @@
+# ============================================================================
+# scop valgrind suppressions: only code outside the project (window,
+# toolkit, GL driver, C++ runtime, glibc loader). Only uses error kinds every
+# valgrind version knows; the newer kinds live in valgrind_recent.supp.
+# Run with --keep-debuginfo=yes (see docs/README.md) or `make valgrind`.
+# ============================================================================
+
+# ---- fontconfig: global font cache (the big "definitely lost" blocks) ----
+{
+   scop_fontconfig
+   Memcheck:Leak
+   ...
+   obj:*/libfontconfig.so*
+}
+
+# ---- pango: text layout and metrics ----
+{
+   scop_pango
+   Memcheck:Leak
+   ...
+   obj:*/libpango-1.0.so*
+}
+{
+   scop_pangocairo
+   Memcheck:Leak
+   ...
+   obj:*/libpangocairo-1.0.so*
+}
+{
+   scop_pangoft2
+   Memcheck:Leak
+   ...
+   obj:*/libpangoft2-1.0.so*
+}
+
+# ---- GTK / GDK: window widgets and decorations ----
+{
+   scop_gtk3
+   Memcheck:Leak
+   ...
+   obj:*/libgtk-3.so*
+}
+{
+   scop_gdk3
+   Memcheck:Leak
+   ...
+   obj:*/libgdk-3.so*
+}
+{
+   scop_gdk_pixbuf
+   Memcheck:Leak
+   ...
+   obj:*/libgdk_pixbuf-2.0.so*
+}
+
+# ---- GLib / GObject / GIO: types, threads, settings, dbus ----
+{
+   scop_glib
+   Memcheck:Leak
+   ...
+   obj:*/libglib-2.0.so*
+}
+{
+   scop_gobject
+   Memcheck:Leak
+   ...
+   obj:*/libgobject-2.0.so*
+}
+{
+   scop_gio
+   Memcheck:Leak
+   ...
+   obj:*/libgio-2.0.so*
+}
+
+# ---- D-Bus: the desktop-portal connection GTK opens for libdecor and keeps
+# until exit ----
+{
+   scop_dbus
+   Memcheck:Leak
+   ...
+   obj:*/libdbus-1.so*
+}
+
+# ---- glycin: Rust image loader (zbus, async-io, rayon, crossbeam) ----
+# The "possibly lost" blocks from detached threads and async executors land here.
+{
+   scop_glycin
+   Memcheck:Leak
+   ...
+   obj:*/libglycin-2.so*
+}
+{
+   scop_glycin_loaders
+   Memcheck:Leak
+   ...
+   obj:*/glycin-loaders/*
+}
+{
+   scop_glycin_pixbufloader
+   Memcheck:Leak
+   ...
+   obj:*/loaders/libpixbufloader-*glycin*.so*
+}
+
+# ---- GLFW + Wayland: the window itself. The two 192 B "definitely lost"
+# blocks are wl_proxy objects from viewporter/fractional-scale that GLFW
+# creates in glfwCreateWindow and does NOT destroy (known GLFW bug on
+# Wayland). window_destroy already calls glfwDestroyWindow + glfwTerminate:
+# this is not a missing cleanup. ----
+{
+   scop_glfw
+   Memcheck:Leak
+   ...
+   obj:*/libglfw.so*
+}
+{
+   scop_wayland_client
+   Memcheck:Leak
+   ...
+   obj:*/libwayland-client.so*
+}
+{
+   scop_wayland_cursor
+   Memcheck:Leak
+   ...
+   obj:*/libwayland-cursor.so*
+}
+{
+   scop_wayland_egl
+   Memcheck:Leak
+   ...
+   obj:*/libwayland-egl.so*
+}
+
+# ---- NVIDIA / EGL / GLX driver: leaks and "still reachable" blocks owned by
+# the driver, which keeps global state until exit. Not project code. ----
+{
+   scop_nvidia
+   Memcheck:Leak
+   ...
+   obj:*/libnvidia-*.so*
+}
+# The zero-size realloc / posix_memalign calls of the NVIDIA EGL driver are in
+# valgrind_recent.supp: their error kinds (ReallocZero, BadSize) only exist in
+# valgrind >= 3.21 / 3.22, and older versions refuse a whole file that names an
+# unknown kind.
+
+# ---- Mesa (gallium): the GLSL compiler keeps its state until a clean exit ----
+{
+   scop_gallium
+   Memcheck:Leak
+   ...
+   obj:*/libgallium*.so*
+}
+{
+   scop_egl
+   Memcheck:Leak
+   ...
+   obj:*/libEGL*.so*
+}
+{
+   scop_glx
+   Memcheck:Leak
+   ...
+   obj:*/libGLX*.so*
+}
+{
+   scop_gldispatch
+   Memcheck:Leak
+   ...
+   obj:*/libGLdispatch.so*
+}
+
+# ---- Mesa software rendering (llvmpipe, typically on X11 without a GPU
+# driver): the rasteriser is a DRI driver loaded with dlopen. It and the LLVM JIT behind it
+# keep their state until exit; the driver is unloaded before the leak check,
+# so without --keep-debuginfo=yes its frames show up as "???". ----
+{
+   scop_mesa_dri
+   Memcheck:Leak
+   ...
+   obj:*/dri/*_dri.so*
+}
+{
+   scop_llvm
+   Memcheck:Leak
+   ...
+   obj:*/libLLVM*.so*
+}
+{
+   scop_glapi
+   Memcheck:Leak
+   ...
+   obj:*/libglapi.so*
+}
+{
+   scop_drm
+   Memcheck:Leak
+   ...
+   obj:*/libdrm*.so*
+}
+
+# ---- X11 / xcb: the display connection and its caches (glfwInit on X11) ----
+{
+   scop_x11
+   Memcheck:Leak
+   ...
+   obj:*/libX11.so*
+}
+{
+   scop_xcb
+   Memcheck:Leak
+   ...
+   obj:*/libxcb*.so*
+}
+
+# ---- C++ runtime: the emergency exception pool libstdc++ allocates when the
+# driver loads it (72,704 B "still reachable", by design) ----
+{
+   scop_libstdcxx
+   Memcheck:Leak
+   ...
+   obj:*/libstdc++.so*
+}
+
+# ---- glibc dynamic loader: buffers dlopen keeps for every library the GL
+# stack loads at run time (_dl_open, _dl_find_object_update, rpath cache) ----
+{
+   scop_dlopen
+   Memcheck:Leak
+   ...
+   fun:_dl_open
+}
+{
+   scop_dl_init
+   Memcheck:Leak
+   ...
+   fun:_dl_init
+}
+
+# ---- glibc dynamic loader: "Invalid read of size 8" in the word-at-a-time
+# strncmp that ld.so runs while expanding the rpath of a dlopen'ed library
+# (reads past the end of a strdup'ed string, inside an aligned word). ----
+{
+   scop_ld_rpath_strncmp
+   Memcheck:Addr8
+   fun:strncmp
+   fun:is_dst
+}
+
+# ============================================================================
+# Errors that are NOT leaks: the "Invalid read" in GTK's init (libgio, via
+# libdecor-gtk -> gtk_init -> g_settings). Same origin, not project code.
+# Silenced by error type (Addr*) + library.
+# ============================================================================
+{
+   scop_gio_invalid_read_32
+   Memcheck:Addr32
+   ...
+   obj:*/libgio-2.0.so*
+}
+{
+   scop_gio_invalid_read_16
+   Memcheck:Addr16
+   ...
+   obj:*/libgio-2.0.so*
+}
+{
+   scop_gio_invalid_read_8
+   Memcheck:Addr8
+   ...
+   obj:*/libgio-2.0.so*
+}
+
+# ============================================================================
+# Preventive: libraries libdecor-gtk also drags in that may show up in another
+# run (not present in the original trace, but they keep this file robust).
+# ============================================================================
+{
+   scop_libdecor
+   Memcheck:Leak
+   ...
+   obj:*/libdecor-*.so*
+}
+{
+   scop_cairo
+   Memcheck:Leak
+   ...
+   obj:*/libcairo.so*
+}
+{
+   scop_harfbuzz
+   Memcheck:Leak
+   ...
+   obj:*/libharfbuzz.so*
+}
+{
+   scop_fribidi
+   Memcheck:Leak
+   ...
+   obj:*/libfribidi.so*
+}
+{
+   scop_gmodule
+   Memcheck:Leak
+   ...
+   obj:*/libgmodule-2.0.so*
+}
+{
+   scop_ffi
+   Memcheck:Leak
+   ...
+   obj:*/libffi.so*
+}
+{
+   scop_dconf
+   Memcheck:Leak
+   ...
+   obj:*/libdconfsettings.so*
+}
