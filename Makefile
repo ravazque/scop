@@ -1,12 +1,17 @@
 NAME		= scop
 
 CC			= cc
-CFLAGS		= -Wall -Wextra -Werror -std=c11 -O2 -g3
+
+# Optimisation level, -O0 by default: `make O=2` (or 3, s, g). Objects are rebuilt whenever the compile flags change.
+O			= 0
+
+CFLAGS		= -Wall -Wextra -Werror -std=c11 -O$(O) -g3
 CPPFLAGS	= -Iinclude
 LDLIBS		= -lm
 
 SRCDIR		= src
 OBJDIR		= obj
+FLAGS_STAMP	= $(OBJDIR)/.flags
 
 SRCS		= main.c \
 			  app/app.c app/args.c app/window.c app/input.c app/hud.c app/draw.c \
@@ -46,8 +51,7 @@ SUPP			= docs/valgrind.supp
 SUPP_RECENT		= docs/valgrind_recent.supp
 # Expanded only by `make valgrind`: the recent file is added when this valgrind accepts it.
 SUPPFLAGS		= --suppressions=$(SUPP) \
-				  $(shell $(VALGRIND) --suppressions=$(SUPP_RECENT) true >/dev/null 2>&1 \
-					&& echo --suppressions=$(SUPP_RECENT))
+				  $(shell $(VALGRIND) --suppressions=$(SUPP_RECENT) true >/dev/null 2>&1 && echo --suppressions=$(SUPP_RECENT))
 VALGRINDFLAGS	= --leak-check=full --show-leak-kinds=all --track-origins=yes --keep-debuginfo=yes $(SUPPFLAGS)
 
 
@@ -57,9 +61,16 @@ $(NAME): $(OBJS) $(GLFW_DEP)
 	$(CC) $(OBJS) $(GLFW_LIBS) $(LDLIBS) -o $@
 
 # Order-only on GLFW, so a missing one is reported before any source is compiled.
-$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(GLFW_DEP)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(FLAGS_STAMP) | $(GLFW_DEP)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(GLFW_CFLAGS) -MMD -MP -c $< -o $@
+
+# Rewritten only when the flags differ from the last build, so its date is the last flag change.
+$(FLAGS_STAMP): FORCE
+	@mkdir -p $(OBJDIR)
+	@echo '$(CC) $(CFLAGS) $(CPPFLAGS) $(GLFW_CFLAGS)' | cmp -s - $@ || echo '$(CC) $(CFLAGS) $(CPPFLAGS) $(GLFW_CFLAGS)' > $@
+
+FORCE:
 
 # Downloaded and checked in a temporary folder, then moved in place: a failed download is never built.
 $(GLFW_SRC):
@@ -97,6 +108,6 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all run valgrind clean fclean re
+.PHONY: all run valgrind clean fclean re FORCE
 
 -include $(DEPS)
