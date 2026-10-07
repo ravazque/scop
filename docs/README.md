@@ -17,7 +17,7 @@ Apart from window and event management, everything is implemented from scratch: 
 - A C compiler, `make` and `pkg-config`.
 - GLFW 3 (the only external library, used for the window and the input) and an OpenGL 4.1 driver.
 
-`make` uses the system GLFW when `pkg-config` finds it. Otherwise it builds a static GLFW from the sources placed in `lib/glfw-3.5.1` (this needs `cmake`), and stops with a message when neither is available.
+`make` uses the system GLFW when `pkg-config` finds it. Otherwise it downloads GLFW 3.5.1 into `lib/` with `curl` or `wget`, checks it against a pinned SHA-256 and builds it as a static library with `cmake`, without root. That build needs the X11 (`libx11-dev`, `libxrandr-dev`, `libxinerama-dev`, `libxcursor-dev`, `libxi-dev`, `libxext-dev`) or Wayland (`libwayland-dev`, `libxkbcommon-dev`) development files, and `make` stops naming what is missing. `make fclean` keeps the downloaded sources, so a rebuild needs no network.
 
 ### Build and run
 
