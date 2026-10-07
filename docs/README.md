@@ -35,7 +35,7 @@ Run it from the repository root, so `shaders/` is found.
 | `ESC` | quit |
 | `H` | show / hide the frame rate and the model path in the window title |
 
-The window title is `scop` by default and `scop - FPS:<rate> - <model path>` while `H` has it shown. `Ctrl+C` in the terminal also closes the program cleanly.
+The window title is `scop` by default and `scop  /  FPS:<rate> | '<model path>' |` while `H` has it shown, with the path exactly as given on the command line. `Ctrl+C` in the terminal also closes the program cleanly.
 
 ### Valgrind
 

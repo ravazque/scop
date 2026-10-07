@@ -11,7 +11,7 @@ static void	set_title(t_app *app)
 		glfwSetWindowTitle(app->window, WIN_TITLE);
 		return ;
 	}
-	snprintf(title, sizeof(title), WIN_TITLE " - FPS:%d - %s", app->hud.fps, app->obj_path);
+	snprintf(title, sizeof(title), WIN_TITLE "  /  FPS:%d | '%s' |", app->hud.fps, app->obj_path);
 	glfwSetWindowTitle(app->window, title);
 }
 
