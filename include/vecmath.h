@@ -26,6 +26,8 @@ float	vec3_dot(t_vec3 a, t_vec3 b);
 t_vec3	vec3_cross(t_vec3 a, t_vec3 b);
 float	vec3_length(t_vec3 a);
 t_vec3	vec3_normalize(t_vec3 a);
+t_vec3	vec3_min(t_vec3 a, t_vec3 b);
+t_vec3	vec3_max(t_vec3 a, t_vec3 b);
 
 /* ---- src/math/mat4.c ---- */
 t_mat4	mat4_identity(void);

@@ -2,20 +2,34 @@
 
 /* Start-up, main loop and shut-down; the loop sleeps off the rest of each frame to hold FPS_CAP. */
 
-int	app_init(t_app *app, int argc, char **argv)
+static int	scene_init(t_app *app, const t_obj *obj)
 {
-	memset(app, 0, sizeof(*app));
-	input_catch_interrupt();
-	if (!args_parse(app, argc, argv) || !window_init(app))
-		return (0);
-	input_init(app);
 	app->program = shader_load(MESH_VERT, MESH_FRAG);
-	if (!app->program)
+	if (!app->program || !mesh_build(&app->mesh, obj))
 		return (0);
-	app->mesh = mesh_cube();
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(CLEAR_R, CLEAR_G, CLEAR_B, 1.0f);
 	return (1);
+}
+
+/* The model is read before the window opens, so a bad file fails fast; its CPU copy is freed once on the GPU. */
+int	app_init(t_app *app, int argc, char **argv)
+{
+	t_obj	obj;
+	int		ok;
+
+	memset(app, 0, sizeof(*app));
+	input_catch_interrupt();
+	if (!args_parse(app, argc, argv) || !obj_load(app->obj_path, &obj))
+		return (0);
+	ok = window_init(app);
+	if (ok)
+	{
+		input_init(app);
+		ok = scene_init(app, &obj);
+	}
+	obj_free(&obj);
+	return (ok);
 }
 
 static void	limit_frame_rate(double frame_start)

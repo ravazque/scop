@@ -4,16 +4,23 @@
 # include <stddef.h>		/* size_t */
 # include "gl_loader.h"		/* GLuint, GLsizei */
 # include "vecmath.h"		/* t_mat4 */
+# include "obj.h"			/* t_obj, the source of a mesh */
 
 # define SHADER_LOG_SIZE	1024	/* bytes kept from a compile or link error log */
 
-/* Geometry in GPU memory: vbo = vertex positions, ebo = triangle indices, vao = how the vertex shader reads the vbo. */
+/* ---- Mesh vertex: one per triangle corner, attribute locations as in shaders/mesh.vert ---- */
+# define MESH_ATTR_POSITION	0			/* xyz inside the unit sphere around the model's center */
+# define MESH_ATTR_NORMAL	1			/* xyz of the face normal */
+# define MESH_ATTR_SHADE	2			/* gray level of the .obj face, in [0, 1) */
+# define MESH_VERTEX_FLOATS	7
+# define MESH_SHADE_STEP	0.6180339887	/* golden ratio: consecutive faces get well-spread shades */
+
+/* Geometry in GPU memory: vbo = the vertices, vao = how the vertex shader reads them. */
 typedef struct s_mesh
 {
 	GLuint	vao;
 	GLuint	vbo;
-	GLuint	ebo;
-	GLsizei	index_count;
+	GLsizei	vertex_count;
 }	t_mesh;
 
 /* ---- src/gl/shader.c ---- */
@@ -23,8 +30,7 @@ void	shader_set_float(GLuint program, const char *name, float value);
 void	shader_set_int(GLuint program, const char *name, int value);
 
 /* ---- src/gl/mesh.c ---- */
-t_mesh	mesh_upload(const float *positions, size_t vertex_count, const GLuint *indices, size_t index_count);
-t_mesh	mesh_cube(void);
+int		mesh_build(t_mesh *mesh, const t_obj *obj);
 void	mesh_draw(const t_mesh *mesh);
 void	mesh_destroy(t_mesh *mesh);
 

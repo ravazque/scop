@@ -1,11 +1,13 @@
 #version 410 core
 
+const float GRAY_DARK = 0.40;   // darkest face
+const float GRAY_SPAN = 0.28;   // lightest face = GRAY_DARK + GRAY_SPAN
+
+flat in float vShade;
+
 out vec4 FragColor;
 
 void main()
 {
-	// Golden-ratio steps spread consecutive triangles over subtle, distinct grays.
-	float shade = 0.30 + 0.45 * fract(float(gl_PrimitiveID) * 0.618034);
-
-	FragColor = vec4(vec3(shade), 1.0);
+	FragColor = vec4(vec3(GRAY_DARK + GRAY_SPAN * vShade), 1.0);
 }

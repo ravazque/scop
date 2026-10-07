@@ -42,8 +42,8 @@
 # define FOV_DEGREES		45.0f
 # define NEAR_PLANE			0.1f
 # define FAR_PLANE			100.0f
-# define CAMERA_HEIGHT		1.0f
-# define CAMERA_DISTANCE	2.5f
+# define CAMERA_HEIGHT		0.6f
+# define CAMERA_DISTANCE	2.6f
 # define SPIN_SPEED			DEG2RAD(45.0f)	/* rad/s of the automatic rotation */
 
 /* ---- Frame timing and title readout ---- */

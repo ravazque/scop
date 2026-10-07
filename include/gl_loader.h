@@ -21,10 +21,8 @@ typedef ptrdiff_t		GLsizeiptr;
 # define GL_DEPTH_BUFFER_BIT		0x00000100
 # define GL_COLOR_BUFFER_BIT		0x00004000
 # define GL_DEPTH_TEST				0x0B71
-# define GL_UNSIGNED_INT			0x1405
 # define GL_FLOAT					0x1406
 # define GL_ARRAY_BUFFER			0x8892
-# define GL_ELEMENT_ARRAY_BUFFER	0x8893
 # define GL_STATIC_DRAW				0x88E4
 # define GL_FRAGMENT_SHADER			0x8B30
 # define GL_VERTEX_SHADER			0x8B31
@@ -37,7 +35,7 @@ typedef ptrdiff_t		GLsizeiptr;
 	X(void, ClearColor, (GLfloat r, GLfloat g, GLfloat b, GLfloat a)) \
 	X(void, Clear, (GLbitfield mask)) \
 	X(void, Enable, (GLenum cap)) \
-	X(void, DrawElements, (GLenum mode, GLsizei count, GLenum type, const void *indices)) \
+	X(void, DrawArrays, (GLenum mode, GLint first, GLsizei count)) \
 	X(void, GenVertexArrays, (GLsizei n, GLuint *arrays)) \
 	X(void, BindVertexArray, (GLuint array)) \
 	X(void, DeleteVertexArrays, (GLsizei n, const GLuint *arrays)) \
@@ -88,7 +86,7 @@ GL_FUNCTIONS(GL_DECLARE)
 # define glClearColor				g_gl_ClearColor
 # define glClear					g_gl_Clear
 # define glEnable					g_gl_Enable
-# define glDrawElements				g_gl_DrawElements
+# define glDrawArrays				g_gl_DrawArrays
 # define glGenVertexArrays			g_gl_GenVertexArrays
 # define glBindVertexArray			g_gl_BindVertexArray
 # define glDeleteVertexArrays		g_gl_DeleteVertexArrays

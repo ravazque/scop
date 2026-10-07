@@ -49,3 +49,13 @@ t_vec3	vec3_normalize(t_vec3 a)
 		return (vec3_scale(a, 1.0f / len));
 	return ((t_vec3){0.0f, 0.0f, 0.0f});
 }
+
+t_vec3	vec3_min(t_vec3 a, t_vec3 b)
+{
+	return ((t_vec3){fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z)});
+}
+
+t_vec3	vec3_max(t_vec3 a, t_vec3 b)
+{
+	return ((t_vec3){fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z)});
+}

@@ -143,8 +143,8 @@ static float	model_size(const t_obj *obj)
 	i = 1;
 	while (i < obj->position_count)
 	{
-		lo = vec3(fminf(lo.x, obj->positions[i].x), fminf(lo.y, obj->positions[i].y), fminf(lo.z, obj->positions[i].z));
-		hi = vec3(fmaxf(hi.x, obj->positions[i].x), fmaxf(hi.y, obj->positions[i].y), fmaxf(hi.z, obj->positions[i].z));
+		lo = vec3_min(lo, obj->positions[i]);
+		hi = vec3_max(hi, obj->positions[i]);
 		i++;
 	}
 	return (vec3_length(vec3_sub(hi, lo)));
