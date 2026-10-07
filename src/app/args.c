@@ -1,6 +1,14 @@
 #include "scop.h"
 
-/* Command line: <model.obj> [width height]. A bad window size falls back to the default. */
+/* Command line: <model.obj> [texture.bmp] [width height]. A bad window size falls back to the default. */
+
+static int	has_extension(const char *path, const char *extension)
+{
+	const size_t	len = strlen(path);
+	const size_t	ext_len = strlen(extension);
+
+	return (len > ext_len && strcmp(path + len - ext_len, extension) == 0);
+}
 
 static int	is_number(const char *s)
 {
@@ -56,29 +64,31 @@ static int	resolve_dim(const char *arg, int min, int max, int def, const char *l
 	return (value);
 }
 
+/* With 3 or 5 arguments the second one is the texture; the size comes last when present. */
 int	args_parse(t_app *app, int argc, char **argv)
 {
-	size_t	len;
+	int	size_at;
 
-	if (argc != 2 && argc != 4)
-	{
-		fprintf(stderr, "Usage: %s <model.obj> [width height]\n", argv[0]);
-		return (0);
-	}
-	len = strlen(argv[1]);
-	if (len <= 4 || strcmp(argv[1] + len - 4, ".obj") != 0)
-	{
-		fprintf(stderr, "Error: '%s' is not a .obj file\n", argv[1]);
-		return (0);
-	}
+	if (argc < 2 || argc > 5)
+		return (fprintf(stderr, "Usage: %s <model.obj> [texture.bmp] [width height]\n", argv[0]), 0);
+	if (!has_extension(argv[1], ".obj"))
+		return (fprintf(stderr, "Error: '%s' is not a .obj file\n", argv[1]), 0);
 	app->obj_path = argv[1];
 	app->texture_path = TEXTURE_DEFAULT;
+	size_at = 2;
+	if (argc == 3 || argc == 5)
+	{
+		if (!has_extension(argv[2], ".bmp"))
+			return (fprintf(stderr, "Error: '%s' is not a .bmp file\n", argv[2]), 0);
+		app->texture_path = argv[2];
+		size_at = 3;
+	}
 	app->width = WIN_WIDTH;
 	app->height = WIN_HEIGHT;
-	if (argc == 4)
+	if (argc - size_at == 2)
 	{
-		app->width = resolve_dim(argv[2], WIN_WIDTH_MIN, WIN_WIDTH_MAX, WIN_WIDTH, "Width");
-		app->height = resolve_dim(argv[3], WIN_HEIGHT_MIN, WIN_HEIGHT_MAX, WIN_HEIGHT, "Height");
+		app->width = resolve_dim(argv[size_at], WIN_WIDTH_MIN, WIN_WIDTH_MAX, WIN_WIDTH, "Width");
+		app->height = resolve_dim(argv[size_at + 1], WIN_HEIGHT_MIN, WIN_HEIGHT_MAX, WIN_HEIGHT, "Height");
 	}
 	return (1);
 }
