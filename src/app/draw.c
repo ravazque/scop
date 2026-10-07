@@ -2,6 +2,8 @@
 
 /* One frame: the model in perspective over the cleared background. */
 
+static const GLenum	g_polygon_modes[DRAW_MODES] = {GL_FILL, GL_LINE, GL_POINT};
+
 static void	draw_model(t_app *app, float aspect)
 {
 	t_mat4	view;
@@ -18,6 +20,7 @@ static void	draw_model(t_app *app, float aspect)
 	shader_set_float(app->program, "uTriplanar", fade_eased(&app->triplanar));
 	shader_set_float(app->program, "uLighting", fade_eased(&app->lit));
 	glBindTexture(GL_TEXTURE_2D, app->texture);
+	glPolygonMode(GL_FRONT_AND_BACK, g_polygon_modes[app->draw_mode]);
 	mesh_draw(&app->mesh);
 }
 

@@ -29,6 +29,8 @@ static void	key_callback(GLFWwindow *window, int key, int scancode, int action, 
 		app->triplanar.on = !app->triplanar.on;
 	else if (key == GLFW_KEY_L)
 		app->lit.on = !app->lit.on;
+	else if (key == GLFW_KEY_M)
+		app->draw_mode = (app->draw_mode + 1) % DRAW_MODES;
 	else if (key == GLFW_KEY_SPACE)
 		app->view.paused = !app->view.paused;
 	else if (key == GLFW_KEY_BACKSPACE)

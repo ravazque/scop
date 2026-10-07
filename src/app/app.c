@@ -14,6 +14,7 @@ static int	scene_init(t_app *app, const t_obj *obj, const t_image *image)
 	glUseProgram(app->program);
 	shader_set_int(app->program, "uTexture", 0);
 	glEnable(GL_DEPTH_TEST);
+	glPointSize(POINT_SIZE);
 	glClearColor(CLEAR_R, CLEAR_G, CLEAR_B, 1.0f);
 	return (1);
 }

@@ -45,6 +45,8 @@
 # define CLEAR_G			0.11f
 # define CLEAR_B			0.13f
 # define FOV_DEGREES		45.0f
+# define DRAW_MODES			3		/* filled faces, wireframe, points (M cycles through them) */
+# define POINT_SIZE			3.0f	/* pixels per vertex in the points mode */
 # define NEAR_PLANE			0.1f
 # define FAR_PLANE			100.0f
 # define CAMERA_HEIGHT		0.6f
@@ -101,6 +103,7 @@ typedef struct s_app
 	t_fade		textured;
 	t_fade		triplanar;
 	t_fade		lit;
+	int			draw_mode;
 	t_hud		hud;
 	t_view		view;
 }	t_app;

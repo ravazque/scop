@@ -20,11 +20,15 @@ typedef ptrdiff_t		GLsizeiptr;
 # define GL_TRIANGLES				0x0004
 # define GL_DEPTH_BUFFER_BIT		0x00000100
 # define GL_COLOR_BUFFER_BIT		0x00004000
+# define GL_FRONT_AND_BACK			0x0408
 # define GL_DEPTH_TEST				0x0B71
 # define GL_TEXTURE_2D				0x0DE1
 # define GL_UNSIGNED_BYTE			0x1401
 # define GL_FLOAT					0x1406
 # define GL_RGBA					0x1908
+# define GL_POINT					0x1B00
+# define GL_LINE					0x1B01
+# define GL_FILL					0x1B02
 # define GL_LINEAR					0x2601
 # define GL_LINEAR_MIPMAP_LINEAR	0x2703
 # define GL_TEXTURE_MAG_FILTER		0x2800
@@ -47,6 +51,8 @@ typedef ptrdiff_t		GLsizeiptr;
 	X(void, ClearColor, (GLfloat r, GLfloat g, GLfloat b, GLfloat a)) \
 	X(void, Clear, (GLbitfield mask)) \
 	X(void, Enable, (GLenum cap)) \
+	X(void, PolygonMode, (GLenum face, GLenum mode)) \
+	X(void, PointSize, (GLfloat size)) \
 	X(void, DrawArrays, (GLenum mode, GLint first, GLsizei count)) \
 	X(void, GenVertexArrays, (GLsizei n, GLuint *arrays)) \
 	X(void, BindVertexArray, (GLuint array)) \
@@ -106,6 +112,8 @@ GL_FUNCTIONS(GL_DECLARE)
 # define glClearColor				g_gl_ClearColor
 # define glClear					g_gl_Clear
 # define glEnable					g_gl_Enable
+# define glPolygonMode				g_gl_PolygonMode
+# define glPointSize				g_gl_PointSize
 # define glDrawArrays				g_gl_DrawArrays
 # define glGenVertexArrays			g_gl_GenVertexArrays
 # define glBindVertexArray			g_gl_BindVertexArray

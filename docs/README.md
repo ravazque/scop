@@ -42,6 +42,7 @@ Run it from the repository root, so `shaders/` is found. Resizing the window by 
 | `T` | apply / remove the texture, with a smooth transition |
 | `U` | switch the texture mapping between triplanar (default, no stretching) and a single planar projection |
 | `L` | turn a soft diffuse light on / off, with a smooth transition |
+| `M` | cycle the drawing mode: filled faces, wireframe, points |
 | `Space` | pause / resume the automatic rotation |
 | `Backspace` | back to the initial position |
 | `H` | show / hide the frame rate and the model path in the window title |
