@@ -47,7 +47,7 @@ The window system, the toolkit that draws the window decorations and the OpenGL 
 
 | File | Valgrind | Contents |
 |---|---|---|
-| [valgrind.supp](valgrind.supp) | every version | GLFW, Wayland, X11, GTK / libdecor, GLib, D-Bus, fontconfig, Mesa, NVIDIA, libstdc++ and the glibc loader |
+| [valgrind.supp](valgrind.supp) | every version | Wayland, X11, GTK / libdecor, GLib, D-Bus, fontconfig, Mesa, NVIDIA, libstdc++ and the glibc loader |
 | [valgrind_recent.supp](valgrind_recent.supp) | 3.22 or newer | Two NVIDIA start-up errors whose kinds (`ReallocZero`, `BadSize`) older versions do not know |
 
-`make valgrind` always loads the first file and adds the second only when the installed valgrind accepts it. `--keep-debuginfo=yes` is required: the Mesa driver is unloaded before the leak check, and without it its frames lose their library name. A clean run ends with every lost and reachable counter at 0 and `ERROR SUMMARY: 0 errors`.
+`make valgrind` always loads the first file and adds the second only when the installed valgrind accepts it. `--keep-debuginfo=yes` is required: the Mesa driver is unloaded before the leak check, and without it its frames lose their library name. A clean run ends with every lost and reachable counter at 0 and `ERROR SUMMARY: 0 errors`, with the system GLFW or the static one. No entry matches GLFW itself: it frees its own state, and its frames sit under every callback of the program, so matching them would also hide the program's own leaks.

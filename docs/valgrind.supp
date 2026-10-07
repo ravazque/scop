@@ -103,17 +103,9 @@
    obj:*/loaders/libpixbufloader-*glycin*.so*
 }
 
-# ---- GLFW + Wayland: the window itself. The two 192 B "definitely lost"
-# blocks are wl_proxy objects from viewporter/fractional-scale that GLFW
-# creates in glfwCreateWindow and does NOT destroy (known GLFW bug on
-# Wayland). window_destroy already calls glfwDestroyWindow + glfwTerminate:
-# this is not a missing cleanup. ----
-{
-   scop_glfw
-   Memcheck:Leak
-   ...
-   obj:*/libglfw.so*
-}
+# ---- Wayland: the window itself. GLFW never destroys two 192 B wl_proxy objects (viewporter, fractional-scale) that libwayland-client allocates in glfwCreateWindow (known GLFW bug). ----
+# No entry matches GLFW itself: it frees its own state, works the same linked static (no libglfw.so frame),
+# and its frames also sit under every callback of ours, so a match there would hide our leaks.
 {
    scop_wayland_client
    Memcheck:Leak
@@ -231,6 +223,13 @@
    Memcheck:Leak
    ...
    fun:_dl_open
+}
+# ---- glibc dynamic loader: the buffer dlclose keeps when glfwTerminate unloads the GL driver (X11 and Wayland, shared or static GLFW) ----
+{
+   scop_dlclose
+   Memcheck:Leak
+   ...
+   fun:_dl_close
 }
 {
    scop_dl_init
