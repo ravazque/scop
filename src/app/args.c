@@ -14,12 +14,21 @@
 
 /* <model.obj> [texture.bmp] [width height]; a bad size uses the default */
 
+/* The file name is a name, not empty and not ending in '.', plus extension */
 static int	has_extension(const char *path, const char *extension)
 {
-	const size_t	len = strlen(path);
+	const char		*name = strrchr(path, '/');
 	const size_t	ext_len = strlen(extension);
+	size_t			len;
 
-	return (len > ext_len && strcmp(path + len - ext_len, extension) == 0);
+	if (name)
+		name++;
+	else
+		name = path;
+	len = strlen(name);
+	if (len <= ext_len || strcmp(name + len - ext_len, extension) != 0)
+		return (0);
+	return (name[len - ext_len - 1] != '.');
 }
 
 /* -2 when s is not a number, -1 when it leaves [min, max]; cannot overflow */

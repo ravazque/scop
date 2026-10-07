@@ -38,7 +38,7 @@ norminette src include              # the C sources follow the 42 Norm
 make clean / fclean / re
 ```
 
-Run it from the repository root, so `shaders/` is found. Resizing the window by its border stays within the same 1280x720 to 3840x2160 range.
+Run it from the repository root, so `shaders/` is found. The model and texture names need a name before their extension: `.obj`, `model` or `model..obj` are refused. Resizing the window by its border stays within the same 1280x720 to 3840x2160 range.
 
 | Key | Action |
 |---|---|
