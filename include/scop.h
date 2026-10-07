@@ -99,6 +99,7 @@ typedef struct s_app
 	GLuint		texture;
 	float		texture_scale[2];
 	t_fade		textured;
+	t_fade		triplanar;
 	t_hud		hud;
 	t_view		view;
 }	t_app;

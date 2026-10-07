@@ -26,6 +26,7 @@ int	app_init(t_app *app, int argc, char **argv)
 	int		ok;
 
 	memset(app, 0, sizeof(*app));
+	app->triplanar = (t_fade){1.0f, 1};
 	input_catch_interrupt();
 	if (!args_parse(app, argc, argv) || !obj_load(app->obj_path, &obj))
 		return (0);
@@ -68,6 +69,7 @@ void	app_run(t_app *app)
 		prev = now;
 		view_update(&app->view, app->window, frame_time);
 		fade_update(&app->textured, frame_time);
+		fade_update(&app->triplanar, frame_time);
 		hud_update(app, frame_time);
 		draw_frame(app);
 		glfwSwapBuffers(app->window);
