@@ -27,6 +27,8 @@ static void	key_callback(GLFWwindow *window, int key, int scancode, int action, 
 		app->textured.on = !app->textured.on;
 	else if (key == GLFW_KEY_U)
 		app->triplanar.on = !app->triplanar.on;
+	else if (key == GLFW_KEY_L)
+		app->lit.on = !app->lit.on;
 	else if (key == GLFW_KEY_SPACE)
 		app->view.paused = !app->view.paused;
 	else if (key == GLFW_KEY_BACKSPACE)

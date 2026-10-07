@@ -100,6 +100,7 @@ typedef struct s_app
 	float		texture_scale[2];
 	t_fade		textured;
 	t_fade		triplanar;
+	t_fade		lit;
 	t_hud		hud;
 	t_view		view;
 }	t_app;

@@ -70,6 +70,7 @@ void	app_run(t_app *app)
 		view_update(&app->view, app->window, frame_time);
 		fade_update(&app->textured, frame_time);
 		fade_update(&app->triplanar, frame_time);
+		fade_update(&app->lit, frame_time);
 		hud_update(app, frame_time);
 		draw_frame(app);
 		glfwSwapBuffers(app->window);

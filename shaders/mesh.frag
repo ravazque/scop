@@ -3,15 +3,20 @@
 const float GRAY_DARK = 0.40;           // darkest face
 const float GRAY_SPAN = 0.28;           // lightest face = GRAY_DARK + GRAY_SPAN
 const float TRIPLANAR_SHARPNESS = 4.0;  // higher: each face takes more of its main axis' projection
+const vec3 LIGHT_DIRECTION = normalize(vec3(-0.4, 0.7, 0.6));   // towards the light, upper left in front
+const float AMBIENT = 0.35;             // light on faces turned away from it
+const float DIFFUSE = 0.75;             // extra light on faces turned towards it
 
 in vec3 vObjectPosition;
 flat in vec3 vObjectNormal;
+flat in vec3 vWorldNormal;
 flat in float vShade;
 
 uniform sampler2D uTexture;
 uniform vec2 uTextureScale;     // the shorter side of the image spans the model
 uniform float uTextureMix;      // 0 = gray faces, 1 = texture, eased in between
 uniform float uTriplanar;       // 0 = planar along Z, 1 = triplanar, eased in between
+uniform float uLighting;        // 0 = flat colors, 1 = diffuse light, eased in between
 
 out vec4 FragColor;
 
@@ -44,5 +49,9 @@ void main()
 	vec3 gray = vec3(GRAY_DARK + GRAY_SPAN * vShade);
 	vec3 textured = mix(planar(vObjectPosition), triplanar(vObjectPosition, vObjectNormal), uTriplanar);
 
-	FragColor = vec4(mix(gray, textured, uTextureMix), 1.0);
+	// Two-sided: a face seen from behind (inside the teapot, for instance) is lit as seen.
+	vec3 n = normalize(gl_FrontFacing ? vWorldNormal : -vWorldNormal);
+	float light = AMBIENT + DIFFUSE * max(dot(n, LIGHT_DIRECTION), 0.0);
+
+	FragColor = vec4(mix(gray, textured, uTextureMix) * mix(1.0, light, uLighting), 1.0);
 }

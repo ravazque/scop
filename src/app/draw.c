@@ -16,6 +16,7 @@ static void	draw_model(t_app *app, float aspect)
 	shader_set_vec2(app->program, "uTextureScale", app->texture_scale[0], app->texture_scale[1]);
 	shader_set_float(app->program, "uTextureMix", fade_eased(&app->textured));
 	shader_set_float(app->program, "uTriplanar", fade_eased(&app->triplanar));
+	shader_set_float(app->program, "uLighting", fade_eased(&app->lit));
 	glBindTexture(GL_TEXTURE_2D, app->texture);
 	mesh_draw(&app->mesh);
 }

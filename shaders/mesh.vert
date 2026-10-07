@@ -10,12 +10,14 @@ uniform mat4 uProjection;   // eye -> clip (perspective)
 
 out vec3 vObjectPosition;
 flat out vec3 vObjectNormal;
+flat out vec3 vWorldNormal;
 flat out float vShade;
 
 void main()
 {
 	vObjectPosition = aPosition;
 	vObjectNormal = aNormal;
+	vWorldNormal = mat3(uModel) * aNormal;  // uModel only rotates and moves, so normals need no inverse transpose
 	vShade = aShade;
 	gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
 }
