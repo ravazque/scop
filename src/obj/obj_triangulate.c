@@ -1,6 +1,6 @@
 #include "scop.h"
 
-/* Faces to triangles that keep the face's winding. Polygons are ear-clipped in the plane of their Newell normal, which also handles concave and slightly non-planar faces. */
+/* Faces to triangles with the face's winding, ear-clipped in the plane of the Newell normal: concave and non-planar too. */
 
 /* Twice the signed area of a, b, c in the 2D projection: positive when they turn counter-clockwise. */
 static float	turn(const float *a, const float *b, const float *c)

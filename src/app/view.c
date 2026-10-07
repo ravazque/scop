@@ -1,6 +1,6 @@
 #include "scop.h"
 
-/* The model transform driven by the keyboard: W/S, A/D and Q/E rotate around X, Y and Z; the arrows and R/F move along X, Y and Z. */
+/* Keyboard-driven model transform: W/S, A/D, Q/E rotate around X, Y, Z; arrows and R/F move along X, Y, Z. */
 
 static const int	g_rotate_keys[][3] = {
 	{GLFW_KEY_W, 0, -1}, {GLFW_KEY_S, 0, 1},

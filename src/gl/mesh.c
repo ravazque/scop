@@ -1,6 +1,6 @@
 #include "scop.h"
 
-/* Triangles on the GPU: centered on the model's bounding box and scaled into the unit sphere, so any model turns around its center and fits the view. */
+/* Triangles on the GPU, centered on the bounding box and scaled into the unit sphere: any model turns around its center. */
 
 /* Center and scale from the corners actually drawn, ignoring unused vertices. */
 static void	normalization(const t_obj *obj, t_vec3 *center, float *scale)

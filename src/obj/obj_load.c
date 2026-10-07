@@ -1,6 +1,6 @@
 #include "scop.h"
 
-/* .obj loading in two passes: the v lines first, so a face may name any vertex of the file, then the f lines kept on the way. Other keywords are ignored. */
+/* .obj loading in two passes: v lines first, so a face may name any vertex, then the f lines kept on the way. */
 
 static int	is_blank(char c)
 {

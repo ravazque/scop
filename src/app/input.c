@@ -1,6 +1,6 @@
 #include "scop.h"
 
-/* One-shot keys arrive through the GLFW callback (held keys are polled in view.c); Ctrl+C also closes cleanly, so valgrind sees a full shut-down. */
+/* One-shot keys through the GLFW callback (held keys: view.c); Ctrl+C also closes cleanly, for valgrind. */
 
 static volatile sig_atomic_t	g_interrupted = 0;
 

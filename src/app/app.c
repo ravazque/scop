@@ -19,7 +19,7 @@ static int	scene_init(t_app *app, const t_obj *obj, const t_image *image)
 	return (1);
 }
 
-/* The model and the texture are read before the window opens, so a bad file fails fast; their CPU copies are freed once on the GPU. */
+/* Model and texture are read before the window opens, so a bad file fails fast; CPU copies are freed once on the GPU. */
 int	app_init(t_app *app, int argc, char **argv)
 {
 	t_obj	obj;
