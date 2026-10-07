@@ -22,6 +22,7 @@ int	window_init(t_app *app)
 		fprintf(stderr, "Error: cannot create an OpenGL 4.1 core window\n");
 		return (glfwTerminate(), 0);
 	}
+	glfwSetWindowSizeLimits(app->window, WIN_WIDTH_MIN, WIN_HEIGHT_MIN, WIN_WIDTH_MAX, WIN_HEIGHT_MAX);
 	glfwMakeContextCurrent(app->window);
 	glfwSwapInterval(0);
 	if (!gl_load_functions())

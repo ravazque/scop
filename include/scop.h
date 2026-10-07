@@ -16,7 +16,7 @@
 # include "vecmath.h"		/* vectors, matrices and projections */
 # include "render.h"		/* shaders and GPU meshes */
 
-/* ---- Window ---- */
+/* ---- Window: size in screen coordinates; MIN/MAX bound both the arguments and resizing ---- */
 # define WIN_TITLE			"scop"
 # define WIN_WIDTH			1280
 # define WIN_HEIGHT			720

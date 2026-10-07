@@ -28,7 +28,7 @@ make run                            # ./scop resources/42.obj (ARGS="..." to cha
 make clean / fclean / re
 ```
 
-Run it from the repository root, so `shaders/` is found.
+Run it from the repository root, so `shaders/` is found. Resizing the window by its border stays within the same 1280x720 to 3840x2160 range.
 
 | Key | Action |
 |---|---|
