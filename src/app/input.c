@@ -1,6 +1,6 @@
 #include "scop.h"
 
-/* Keys arrive through the GLFW callback; Ctrl+C also closes cleanly, so valgrind sees a full shut-down. */
+/* One-shot keys arrive through the GLFW callback (held keys are polled in view.c); Ctrl+C also closes cleanly, so valgrind sees a full shut-down. */
 
 static volatile sig_atomic_t	g_interrupted = 0;
 
@@ -12,14 +12,21 @@ static void	on_interrupt(int sig)
 
 static void	key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
+	t_app	*app;
+
 	(void)scancode;
 	(void)mods;
 	if (action != GLFW_PRESS)
 		return ;
+	app = glfwGetWindowUserPointer(window);
 	if (key == GLFW_KEY_ESCAPE)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	else if (key == GLFW_KEY_H)
-		hud_toggle(glfwGetWindowUserPointer(window));
+		hud_toggle(app);
+	else if (key == GLFW_KEY_SPACE)
+		app->view.paused = !app->view.paused;
+	else if (key == GLFW_KEY_BACKSPACE)
+		view_reset(&app->view);
 }
 
 /* Installed first, so a Ctrl+C during start-up also ends cleanly; sigaction keeps the handler, signal() may reset it. */

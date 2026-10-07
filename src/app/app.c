@@ -58,7 +58,7 @@ void	app_run(t_app *app)
 		now = glfwGetTime();
 		frame_time = fminf((float)(now - prev), MAX_FRAME_TIME);
 		prev = now;
-		app->angle = fmodf(app->angle + SPIN_SPEED * frame_time, 2.0f * SCOP_PI);
+		view_update(&app->view, app->window, frame_time);
 		hud_update(app, frame_time);
 		draw_frame(app);
 		glfwSwapBuffers(app->window);

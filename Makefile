@@ -14,7 +14,7 @@ OBJDIR		= obj
 FLAGS_STAMP	= $(OBJDIR)/.flags
 
 SRCS		= main.c \
-			  app/app.c app/args.c app/window.c app/input.c app/hud.c app/draw.c \
+			  app/app.c app/args.c app/window.c app/input.c app/view.c app/hud.c app/draw.c \
 			  gl/gl_loader.c gl/shader.c gl/mesh.c \
 			  math/vec3.c math/mat4.c math/projection.c \
 			  obj/obj_load.c obj/obj_face.c obj/obj_triangulate.c \

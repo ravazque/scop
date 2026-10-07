@@ -10,7 +10,7 @@ static void	draw_model(t_app *app, float aspect)
 	view = mat4_look_at(vec3(0.0f, CAMERA_HEIGHT, CAMERA_DISTANCE), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4_perspective(DEG2RAD(FOV_DEGREES), aspect, NEAR_PLANE, FAR_PLANE);
 	glUseProgram(app->program);
-	shader_set_mat4(app->program, "uModel", mat4_rotation_y(app->angle));
+	shader_set_mat4(app->program, "uModel", view_model_matrix(&app->view));
 	shader_set_mat4(app->program, "uView", view);
 	shader_set_mat4(app->program, "uProjection", projection);
 	mesh_draw(&app->mesh);

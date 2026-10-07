@@ -46,6 +46,13 @@
 # define CAMERA_DISTANCE	2.6f
 # define SPIN_SPEED			DEG2RAD(45.0f)	/* rad/s of the automatic rotation */
 
+/* ---- Model controls (keys held down; the change is speed times frame time) ---- */
+# define ROTATE_SPEED		DEG2RAD(90.0f)	/* rad/s around each axis */
+# define MOVE_SPEED			1.5f			/* units/s along each axis; the model fits in a unit sphere */
+# define MOVE_LIMIT_XY		2.0f			/* farthest the center may go sideways or up and down */
+# define MOVE_LIMIT_NEAR	1.2f			/* closest z: the model stays in front of the camera */
+# define MOVE_LIMIT_FAR		-12.0f			/* farthest z */
+
 /* ---- Frame timing and title readout ---- */
 # define FPS_CAP			60		/* frames per second the main loop is limited to */
 # define MAX_FRAME_TIME		0.25f	/* s: longer frames (a dragged window) are clamped */
@@ -59,6 +66,15 @@ typedef struct s_hud
 	int		visible;
 }	t_hud;
 
+/* Where the user put the model: rotations around its own axes, then a translation along the world axes. */
+typedef struct s_view
+{
+	float	rotation[3];
+	float	position[3];
+	float	spin;
+	int		paused;
+}	t_view;
+
 typedef struct s_app
 {
 	GLFWwindow	*window;
@@ -68,7 +84,7 @@ typedef struct s_app
 	GLuint		program;
 	t_mesh		mesh;
 	t_hud		hud;
-	float		angle;
+	t_view		view;
 }	t_app;
 
 /* ---- src/app/app.c ---- */
@@ -87,6 +103,11 @@ void	window_destroy(t_app *app);
 void	input_catch_interrupt(void);
 void	input_init(t_app *app);
 int		input_interrupted(void);
+
+/* ---- src/app/view.c ---- */
+void	view_update(t_view *view, GLFWwindow *window, float frame_time);
+void	view_reset(t_view *view);
+t_mat4	view_model_matrix(const t_view *view);
 
 /* ---- src/app/hud.c ---- */
 void	hud_update(t_app *app, float frame_time);
