@@ -21,7 +21,19 @@ typedef ptrdiff_t		GLsizeiptr;
 # define GL_DEPTH_BUFFER_BIT		0x00000100
 # define GL_COLOR_BUFFER_BIT		0x00004000
 # define GL_DEPTH_TEST				0x0B71
+# define GL_TEXTURE_2D				0x0DE1
+# define GL_UNSIGNED_BYTE			0x1401
 # define GL_FLOAT					0x1406
+# define GL_RGBA					0x1908
+# define GL_LINEAR					0x2601
+# define GL_LINEAR_MIPMAP_LINEAR	0x2703
+# define GL_TEXTURE_MAG_FILTER		0x2800
+# define GL_TEXTURE_MIN_FILTER		0x2801
+# define GL_TEXTURE_WRAP_S			0x2802
+# define GL_TEXTURE_WRAP_T			0x2803
+# define GL_REPEAT					0x2901
+# define GL_RGBA8					0x8058
+# define GL_TEXTURE0				0x84C0
 # define GL_ARRAY_BUFFER			0x8892
 # define GL_STATIC_DRAW				0x88E4
 # define GL_FRAGMENT_SHADER			0x8B30
@@ -61,7 +73,15 @@ typedef ptrdiff_t		GLsizeiptr;
 	X(GLint, GetUniformLocation, (GLuint program, const GLchar *name)) \
 	X(void, UniformMatrix4fv, (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)) \
 	X(void, Uniform1f, (GLint location, GLfloat v0)) \
-	X(void, Uniform1i, (GLint location, GLint v0))
+	X(void, Uniform2f, (GLint location, GLfloat v0, GLfloat v1)) \
+	X(void, Uniform1i, (GLint location, GLint v0)) \
+	X(void, GenTextures, (GLsizei n, GLuint *textures)) \
+	X(void, BindTexture, (GLenum target, GLuint texture)) \
+	X(void, ActiveTexture, (GLenum texture)) \
+	X(void, TexImage2D, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) \
+	X(void, TexParameteri, (GLenum target, GLenum pname, GLint param)) \
+	X(void, GenerateMipmap, (GLenum target)) \
+	X(void, DeleteTextures, (GLsizei n, const GLuint *textures))
 
 # define GL_DECLARE(ret, name, params) \
 	typedef ret	(*t_gl_##name)params; \
@@ -112,7 +132,15 @@ GL_FUNCTIONS(GL_DECLARE)
 # define glGetUniformLocation		g_gl_GetUniformLocation
 # define glUniformMatrix4fv			g_gl_UniformMatrix4fv
 # define glUniform1f				g_gl_Uniform1f
+# define glUniform2f				g_gl_Uniform2f
 # define glUniform1i				g_gl_Uniform1i
+# define glGenTextures				g_gl_GenTextures
+# define glBindTexture				g_gl_BindTexture
+# define glActiveTexture			g_gl_ActiveTexture
+# define glTexImage2D				g_gl_TexImage2D
+# define glTexParameteri			g_gl_TexParameteri
+# define glGenerateMipmap			g_gl_GenerateMipmap
+# define glDeleteTextures			g_gl_DeleteTextures
 
 int	gl_load_functions(void);
 

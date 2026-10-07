@@ -5,6 +5,7 @@
 # include "gl_loader.h"		/* GLuint, GLsizei */
 # include "vecmath.h"		/* t_mat4 */
 # include "obj.h"			/* t_obj, the source of a mesh */
+# include "image.h"			/* t_image, the source of a texture */
 
 # define SHADER_LOG_SIZE	1024	/* bytes kept from a compile or link error log */
 
@@ -27,11 +28,15 @@ typedef struct s_mesh
 GLuint	shader_load(const char *vert_path, const char *frag_path);
 void	shader_set_mat4(GLuint program, const char *name, t_mat4 value);
 void	shader_set_float(GLuint program, const char *name, float value);
+void	shader_set_vec2(GLuint program, const char *name, float x, float y);
 void	shader_set_int(GLuint program, const char *name, int value);
 
 /* ---- src/gl/mesh.c ---- */
 int		mesh_build(t_mesh *mesh, const t_obj *obj);
 void	mesh_draw(const t_mesh *mesh);
 void	mesh_destroy(t_mesh *mesh);
+
+/* ---- src/gl/texture.c ---- */
+GLuint	texture_upload(const t_image *image);
 
 #endif

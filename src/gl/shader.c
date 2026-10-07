@@ -73,6 +73,11 @@ void	shader_set_float(GLuint program, const char *name, float value)
 	glUniform1f(glGetUniformLocation(program, name), value);
 }
 
+void	shader_set_vec2(GLuint program, const char *name, float x, float y)
+{
+	glUniform2f(glGetUniformLocation(program, name), x, y);
+}
+
 void	shader_set_int(GLuint program, const char *name, int value)
 {
 	glUniform1i(glGetUniformLocation(program, name), value);

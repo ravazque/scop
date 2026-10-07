@@ -8,10 +8,12 @@ uniform mat4 uModel;        // object -> world
 uniform mat4 uView;         // world -> eye
 uniform mat4 uProjection;   // eye -> clip (perspective)
 
+out vec3 vObjectPosition;
 flat out float vShade;
 
 void main()
 {
+	vObjectPosition = aPosition;
 	vShade = aShade;
 	gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
 }

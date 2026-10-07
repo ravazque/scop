@@ -23,6 +23,8 @@ static void	key_callback(GLFWwindow *window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	else if (key == GLFW_KEY_H)
 		hud_toggle(app);
+	else if (key == GLFW_KEY_T)
+		app->textured.on = !app->textured.on;
 	else if (key == GLFW_KEY_SPACE)
 		app->view.paused = !app->view.paused;
 	else if (key == GLFW_KEY_BACKSPACE)

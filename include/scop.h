@@ -20,6 +20,7 @@
 # include "vecmath.h"		/* vectors, matrices and projections */
 # include "util.h"			/* whole-file reads and growable arrays */
 # include "obj.h"			/* .obj parsing and triangulation */
+# include "image.h"			/* BMP images */
 # include "render.h"		/* shaders and GPU meshes */
 
 /* ---- Window: size in screen coordinates; MIN/MAX bound both the arguments and resizing ---- */
@@ -34,6 +35,10 @@
 /* ---- Shader sources (relative to the run directory) ---- */
 # define MESH_VERT			"shaders/mesh.vert"
 # define MESH_FRAG			"shaders/mesh.frag"
+
+/* ---- Texture ---- */
+# define TEXTURE_DEFAULT	"resources/kittens.bmp"
+# define FADE_SECONDS		0.8f		/* length of every toggle transition */
 
 /* ---- Scene ---- */
 # define CLEAR_R			0.10f
@@ -66,6 +71,13 @@ typedef struct s_hud
 	int		visible;
 }	t_hud;
 
+/* A toggle that eases between 0 and 1 instead of switching, so the picture never cuts. */
+typedef struct s_fade
+{
+	float	value;
+	int		on;
+}	t_fade;
+
 /* Where the user put the model: rotations around its own axes, then a translation along the world axes. */
 typedef struct s_view
 {
@@ -79,10 +91,14 @@ typedef struct s_app
 {
 	GLFWwindow	*window;
 	const char	*obj_path;
+	const char	*texture_path;
 	int			width;
 	int			height;
 	GLuint		program;
 	t_mesh		mesh;
+	GLuint		texture;
+	float		texture_scale[2];
+	t_fade		textured;
 	t_hud		hud;
 	t_view		view;
 }	t_app;
@@ -108,6 +124,10 @@ int		input_interrupted(void);
 void	view_update(t_view *view, GLFWwindow *window, float frame_time);
 void	view_reset(t_view *view);
 t_mat4	view_model_matrix(const t_view *view);
+
+/* ---- src/app/fade.c ---- */
+void	fade_update(t_fade *fade, float frame_time);
+float	fade_eased(const t_fade *fade);
 
 /* ---- src/app/hud.c ---- */
 void	hud_update(t_app *app, float frame_time);

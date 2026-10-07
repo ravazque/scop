@@ -72,6 +72,7 @@ int	args_parse(t_app *app, int argc, char **argv)
 		return (0);
 	}
 	app->obj_path = argv[1];
+	app->texture_path = TEXTURE_DEFAULT;
 	app->width = WIN_WIDTH;
 	app->height = WIN_HEIGHT;
 	if (argc == 4)

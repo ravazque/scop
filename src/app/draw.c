@@ -13,6 +13,9 @@ static void	draw_model(t_app *app, float aspect)
 	shader_set_mat4(app->program, "uModel", view_model_matrix(&app->view));
 	shader_set_mat4(app->program, "uView", view);
 	shader_set_mat4(app->program, "uProjection", projection);
+	shader_set_vec2(app->program, "uTextureScale", app->texture_scale[0], app->texture_scale[1]);
+	shader_set_float(app->program, "uTextureMix", fade_eased(&app->textured));
+	glBindTexture(GL_TEXTURE_2D, app->texture);
 	mesh_draw(&app->mesh);
 }
 

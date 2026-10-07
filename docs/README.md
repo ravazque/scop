@@ -39,6 +39,7 @@ Run it from the repository root, so `shaders/` is found. Resizing the window by 
 | `←` / `→` | move along X |
 | `↓` / `↑` | move along Y |
 | `F` / `R` | move along Z, away / closer |
+| `T` | apply / remove the texture, with a smooth transition |
 | `Space` | pause / resume the automatic rotation |
 | `Backspace` | back to the initial position |
 | `H` | show / hide the frame rate and the model path in the window title |
