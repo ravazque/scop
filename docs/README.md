@@ -4,11 +4,17 @@
 
 ## Description
 
-scop is an introduction to **GPU rendering**: a small program written in **C** with **OpenGL** that loads a 3D model from a `.obj` file and displays it in a window with perspective projection.
+scop is an introduction to **GPU rendering**: a small program written in **C** with **OpenGL 4.1** that loads a 3D model from a `.obj` file and displays it in a window, in perspective.
 
-The object can be rotated and translated around its three main axes, with the origin at its center. Its faces are shaded in distinct tones of gray, and a dedicated key toggles a texture on and off with a smooth transition between both views.
+The model spins around its own vertical axis and can be rotated and moved along its three axes from the keyboard. Every face of the `.obj` gets its own subtle shade of gray, and one key fades a texture in and out over the model.
 
-Apart from window and event management, everything is implemented from scratch: the `.obj` parser, the matrix math, the shader loading and the texture loading.
+Apart from the window and the keyboard, handled by GLFW, everything is written from scratch: the `.obj` parser, the vector and matrix math, the shader loading, the BMP texture loader and the OpenGL function loader.
+
+Beyond that, scop:
+
+- triangulates concave and non-planar faces by ear clipping, and draws the original Utah teapot exactly like its re-exported version;
+- maps the texture triplanar, so no face stretches it, with a key to compare against a single planar projection;
+- has a soft diffuse light, wireframe and point drawing modes, an optional texture argument, and the frame rate in the window title.
 
 ## Instructions
 
@@ -68,3 +74,28 @@ The window system, the toolkit that draws the window decorations and the OpenGL 
 | [valgrind_recent.supp](valgrind_recent.supp) | 3.22 or newer | Two NVIDIA start-up errors whose kinds (`ReallocZero`, `BadSize`) older versions do not know |
 
 `make valgrind` always loads the first file and adds the second only when the installed valgrind accepts it. `--keep-debuginfo=yes` is required: the Mesa driver is unloaded before the leak check, and without it its frames lose their library name. A clean run ends with every lost and reachable counter at 0 and `ERROR SUMMARY: 0 errors`, with the system GLFW or the static one. No entry matches GLFW itself: it frees its own state, and its frames sit under every callback of the program, so matching them would also hide the program's own leaks.
+
+## How it works
+
+- **Loading** (`src/obj/`, `src/image/`): the model and the texture are read before the window opens, so a bad file fails without one. The `.obj` is parsed in two passes, vertices first, so a face may name any vertex; corners can be `v`, `v/vt`, `v//vn` or `v/vt/vn`, and negative indices count back from the face's line. Polygons are ear-clipped in the plane of their Newell normal and degenerate triangles are dropped. The BMP loader reads 24 and 32-bit files, uncompressed or with byte-aligned `BI_BITFIELDS` masks, bottom-up or top-down, with any header from `BITMAPINFOHEADER` to V5. Errors name the file, and the line for a `.obj`.
+- **Mesh** (`src/gl/mesh.c`): every triangle corner gets its own vertex with its position, the face normal and a gray level per `.obj` face, taken from the golden-ratio sequence so neighboring faces differ. The model is centered on the bounding box of its triangles and scaled into the unit sphere, so any model turns around its center and fits the view.
+- **Transforms** (`src/app/view.c`, `src/math/`): 4x4 column-major matrices, uploaded without transposition. The model matrix is a translation, then rotations around Z and X, then the rotation around the model's own Y axis that carries the automatic spin; the camera uses a look-at view and a perspective projection.
+- **Shading** (`shaders/`): the texture is projected in model space, so it stays on the model while it turns, and keeps the image's proportions. The triplanar mapping blends a projection along each axis by the face normal, each one upright and unmirrored seen from outside. The texture, the mapping and the light switch through 0.8 s smoothstep fades instead of cutting.
+- **OpenGL loader** (`include/gl_loader.h`): one table of function pointers, filled with `glfwGetProcAddress`, for exactly the OpenGL 4.1 core functions the program calls.
+
+## Resources
+
+- [docs.gl](https://docs.gl/): OpenGL function reference.
+- [OpenGL 4.1 core profile specification](https://registry.khronos.org/OpenGL/specs/gl/glspec41.core.pdf), Khronos.
+- [LearnOpenGL](https://learnopengl.com/): buffers, shaders, transformations, textures and lighting.
+- [GLFW documentation](https://www.glfw.org/docs/latest/): windows, contexts, input and `glfwGetProcAddress`.
+- [Wavefront OBJ file format](https://paulbourke.net/dataformats/obj/), Paul Bourke.
+- [BMP file format](https://en.wikipedia.org/wiki/BMP_file_format), Wikipedia.
+- David Eberly, [Triangulation by Ear Clipping](https://www.geometrictools.com/Documentation/TriangulationByEarClipping.pdf), Geometric Tools.
+- Filippo Tampieri, *Newell's Method for Computing the Plane Equation of a Polygon*, Graphics Gems III, 1992.
+- Ryan Geiss, [Generating Complex Procedural Terrains Using the GPU](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu), GPU Gems 3, chapter 1: triplanar texturing.
+- Texture: [Three innocent kittens](https://www.flickr.com/photos/38709274@N02/14582884739) by iDapinder, Public Domain Dedication (CC0 1.0), cropped to 768x768 and stored as `resources/kittens.bmp`.
+
+### Use of AI
+
+An AI assistant was used as a support tool, under the author's direction and review: to generate and review this README, to write and run tests (generated `.obj` and BMP files, rendered-frame checks, valgrind runs), to migrate the build setup from previous projects (Makefile, GLFW build, valgrind suppressions), and as a coding aid on parts of the implementation (the `.obj` parser, the BMP loader and the shaders).
