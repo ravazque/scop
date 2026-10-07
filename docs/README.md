@@ -12,7 +12,7 @@ Apart from the window and the keyboard, handled by GLFW, everything is written f
 
 Beyond that, scop:
 
-- triangulates concave and non-planar faces by ear clipping, and draws the original Utah teapot exactly like its re-exported version;
+- triangulates concave and non-planar faces by ear clipping, and draws the original Utah teapot exactly like its re-exported version (`resources/extra/` adds a concave star prism and a crown with non-planar faces);
 - maps the texture triplanar, so no face stretches it, with a key to compare against a single planar projection;
 - has a soft diffuse light, wireframe and point drawing modes, an optional texture argument, and the frame rate in the window title.
 
