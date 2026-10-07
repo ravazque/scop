@@ -2,8 +2,8 @@ NAME		= scop
 
 CC			= cc
 
-# Optimisation level, -O0 by default: `make O=2` (or 3, s, g). Objects are rebuilt whenever the compile flags change.
-O			= 0
+# Optimisation level, -O2 by default: `make O=0` (or 1, 3, s, g). Objects are rebuilt whenever the compile flags change.
+O			= 2
 
 CFLAGS		= -Wall -Wextra -Werror -std=c11 -O$(O) -g3
 CPPFLAGS	= -Iinclude

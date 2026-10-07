@@ -22,8 +22,8 @@ Apart from window and event management, everything is implemented from scratch: 
 ### Build and run
 
 ```bash
-make                                # builds ./scop (-O0)
-make O=2                            # optimisation level: 0 by default, or 1, 2, 3, s, g
+make                                # builds ./scop (-O2)
+make O=0                            # optimisation level: 2 by default, or 0, 1, 3, s, g
 ./scop <model.obj> [texture.bmp] [width height]
                                     # texture: resources/kittens.bmp by default
                                     # window size: 1280x720 (HD) to 3840x2160 (4K), 1280x720 by default
