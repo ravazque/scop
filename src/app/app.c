@@ -1,25 +1,38 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   app.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
+/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "scop.h"
 
-/* Start-up, main loop and shut-down; the loop sleeps off the rest of each frame to hold FPS_CAP. */
+/* Start-up, main loop and shut-down; the loop sleeps to hold FPS_CAP */
 
-/* The shorter side of the image spans the model, so the texture keeps its proportions. */
 static int	scene_init(t_app *app, const t_obj *obj, const t_image *image)
 {
+	const t_gl	*g = gl();
+
 	app->program = shader_load(MESH_VERT, MESH_FRAG);
 	if (!app->program || !mesh_build(&app->mesh, obj))
 		return (0);
 	app->texture = texture_upload(image);
-	app->texture_scale[0] = fminf(1.0f, (float)image->height / (float)image->width);
-	app->texture_scale[1] = fminf(1.0f, (float)image->width / (float)image->height);
-	glUseProgram(app->program);
+	app->texture_scale[0] = fminf(1.0f, (float)image->height / image->width);
+	app->texture_scale[1] = fminf(1.0f, (float)image->width / image->height);
+	g->use_program(app->program);
 	shader_set_int(app->program, "uTexture", 0);
-	glEnable(GL_DEPTH_TEST);
-	glPointSize(POINT_SIZE);
-	glClearColor(CLEAR_R, CLEAR_G, CLEAR_B, 1.0f);
+	g->enable(GL_DEPTH_TEST);
+	g->point_size(POINT_SIZE);
+	g->clear_color(CLEAR_R, CLEAR_G, CLEAR_B, 1.0f);
 	return (1);
 }
 
-/* Model and texture are read before the window opens, so a bad file fails fast; CPU copies are freed once on the GPU. */
+/* The files are read before the window opens, so a bad one fails fast */
 int	app_init(t_app *app, int argc, char **argv)
 {
 	t_obj	obj;
@@ -59,34 +72,35 @@ void	app_run(t_app *app)
 {
 	double	prev;
 	double	now;
-	float	frame_time;
+	float	dt;
 
 	prev = glfwGetTime();
 	while (!glfwWindowShouldClose(app->window) && !input_interrupted())
 	{
 		glfwPollEvents();
+		input_poll(app);
 		now = glfwGetTime();
-		frame_time = fminf((float)(now - prev), MAX_FRAME_TIME);
+		dt = fminf((float)(now - prev), MAX_FRAME_TIME);
 		prev = now;
-		view_update(&app->view, app->window, frame_time);
-		fade_update(&app->textured, frame_time);
-		fade_update(&app->triplanar, frame_time);
-		fade_update(&app->lit, frame_time);
-		hud_update(app, frame_time);
+		view_update(&app->view, app->window, dt);
+		fade_update(&app->textured, dt);
+		fade_update(&app->triplanar, dt);
+		fade_update(&app->lit, dt);
+		hud_update(app, dt);
 		draw_frame(app);
 		glfwSwapBuffers(app->window);
 		limit_frame_rate(now);
 	}
 }
 
-/* Safe after a failed app_init: GL objects are released only while the context exists, and glDelete* ignore 0. */
+/* Safe after a failed app_init: GL objects go only while the context lives */
 void	app_destroy(t_app *app)
 {
 	if (app->window)
 	{
 		mesh_destroy(&app->mesh);
-		glDeleteTextures(1, &app->texture);
-		glDeleteProgram(app->program);
+		(gl()->delete_textures)(1, &app->texture);
+		gl()->delete_program(app->program);
 	}
 	window_destroy(app);
 }

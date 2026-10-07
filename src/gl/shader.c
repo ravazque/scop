@@ -1,84 +1,84 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   shader.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
+/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "scop.h"
 
-/* Loads, compiles and links a GLSL program from two files, and sets its uniforms by name. */
+/* GLSL programs from two files, with the driver's log when they fail */
 
-static GLuint	compile_stage(GLenum type, const char *path)
+/* 0 when the stage does not compile, after printing the driver's log */
+static unsigned int	check_stage(unsigned int shader, const char *path)
 {
-	char		*src;
-	const char	*sources[1];
-	GLuint		shader;
-	GLint		ok;
+	const t_gl	*g = gl();
+	int			ok;
 	char		log[SHADER_LOG_SIZE];
 
-	src = file_read(path, NULL);
-	if (!src)
-		return (0);
-	sources[0] = src;
-	shader = glCreateShader(type);
-	glShaderSource(shader, 1, sources, NULL);
-	glCompileShader(shader);
-	free(src);
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
+	g->get_shader_iv(shader, GL_COMPILE_STATUS, &ok);
 	if (ok)
 		return (shader);
-	glGetShaderInfoLog(shader, SHADER_LOG_SIZE, NULL, log);
+	g->get_shader_log(shader, SHADER_LOG_SIZE, NULL, log);
 	fprintf(stderr, "Error: cannot compile %s:\n%s\n", path, log);
-	glDeleteShader(shader);
+	g->delete_shader(shader);
 	return (0);
 }
 
-static GLuint	link_program(GLuint vs, GLuint fs)
+static unsigned int	compile_stage(unsigned int type, const char *path)
 {
-	GLuint	program;
-	GLint	ok;
-	char	log[SHADER_LOG_SIZE];
+	const t_gl		*g = gl();
+	const char		*sources[1];
+	unsigned int	shader;
 
-	program = glCreateProgram();
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glGetProgramiv(program, GL_LINK_STATUS, &ok);
+	sources[0] = file_read(path, NULL);
+	if (!sources[0])
+		return (0);
+	shader = g->create_shader(type);
+	g->shader_source(shader, 1, sources, NULL);
+	g->compile_shader(shader);
+	free((char *)sources[0]);
+	return (check_stage(shader, path));
+}
+
+static unsigned int	link_program(unsigned int vs, unsigned int fs)
+{
+	const t_gl		*g = gl();
+	unsigned int	program;
+	int				ok;
+	char			log[SHADER_LOG_SIZE];
+
+	program = g->create_program();
+	g->attach_shader(program, vs);
+	g->attach_shader(program, fs);
+	g->link_program(program);
+	g->get_program_iv(program, GL_LINK_STATUS, &ok);
 	if (ok)
 		return (program);
-	glGetProgramInfoLog(program, SHADER_LOG_SIZE, NULL, log);
+	g->get_program_log(program, SHADER_LOG_SIZE, NULL, log);
 	fprintf(stderr, "Error: cannot link shader program:\n%s\n", log);
-	glDeleteProgram(program);
+	g->delete_program(program);
 	return (0);
 }
 
-/* 0 on failure, with the driver's log printed. The stages are freed once linked. */
-GLuint	shader_load(const char *vert_path, const char *frag_path)
+/* 0 on failure; the stages are deleted once linked */
+unsigned int	shader_load(const char *vert_path, const char *frag_path)
 {
-	GLuint	vs;
-	GLuint	fs;
-	GLuint	program;
+	unsigned int	vs;
+	unsigned int	fs;
+	unsigned int	program;
 
 	vs = compile_stage(GL_VERTEX_SHADER, vert_path);
 	fs = compile_stage(GL_FRAGMENT_SHADER, frag_path);
 	program = 0;
 	if (vs && fs)
 		program = link_program(vs, fs);
-	glDeleteShader(vs);
-	glDeleteShader(fs);
+	gl()->delete_shader(vs);
+	gl()->delete_shader(fs);
 	return (program);
-}
-
-void	shader_set_mat4(GLuint program, const char *name, t_mat4 value)
-{
-	glUniformMatrix4fv(glGetUniformLocation(program, name), 1, GL_FALSE, value.m);
-}
-
-void	shader_set_float(GLuint program, const char *name, float value)
-{
-	glUniform1f(glGetUniformLocation(program, name), value);
-}
-
-void	shader_set_vec2(GLuint program, const char *name, float x, float y)
-{
-	glUniform2f(glGetUniformLocation(program, name), x, y);
-}
-
-void	shader_set_int(GLuint program, const char *name, int value)
-{
-	glUniform1i(glGetUniformLocation(program, name), value);
 }

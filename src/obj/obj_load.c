@@ -1,137 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   obj_load.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/07 15:07:38 by ravazque          #+#    #+#             */
+/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "scop.h"
 
-/* .obj loading in two passes: v lines first, so a face may name any vertex, then the f lines kept on the way. */
+/* .obj loading in two passes: v lines first, so a face may name any vertex */
 
-static int	is_blank(char c)
-{
-	return (c == ' ' || c == '\t' || c == '\r' || c == '\v' || c == '\f');
-}
-
-/* Next blank-separated token of a line, NUL-terminated in place; NULL at the end of the line. */
-char	*obj_token(char **cursor)
-{
-	char	*s;
-	char	*start;
-
-	s = *cursor;
-	while (is_blank(*s))
-		s++;
-	if (*s == '\0')
-	{
-		*cursor = s;
-		return (NULL);
-	}
-	start = s;
-	while (*s && !is_blank(*s))
-		s++;
-	if (*s)
-		*s++ = '\0';
-	*cursor = s;
-	return (start);
-}
-
-/* 0 always, after "Error: path:line: message 'token'" (line 0 and a NULL token are left out). */
-int	obj_error(const t_obj_parser *p, size_t line, const char *message, const char *token)
-{
-	fprintf(stderr, "Error: %s", p->path);
-	if (line)
-		fprintf(stderr, ":%zu", line);
-	fprintf(stderr, ": %s", message);
-	if (token)
-		fprintf(stderr, " '%s'", token);
-	fprintf(stderr, "\n");
-	return (0);
-}
-
-static int	parse_vertex(t_obj *obj, t_obj_parser *p, char *cursor, size_t line)
-{
-	float	xyz[3];
-	char	*token;
-	char	*end;
-	t_vec3	*grown;
-	int		i;
-
-	i = 0;
-	while (i < 3)
-	{
-		token = obj_token(&cursor);
-		if (!token)
-			return (obj_error(p, line, "a vertex needs x, y and z", NULL));
-		xyz[i] = strtof(token, &end);
-		if (end == token || *end || !isfinite(xyz[i]))
-			return (obj_error(p, line, "invalid vertex coordinate", token));
-		i++;
-	}
-	if (obj->position_count >= UINT_MAX)
-		return (obj_error(p, line, "too many vertices", NULL));
-	grown = array_reserve(obj->positions, &obj->position_cap, obj->position_count + 1, sizeof(t_vec3));
-	if (!grown)
-		return (0);
-	obj->positions = grown;
-	obj->positions[obj->position_count++] = vec3(xyz[0], xyz[1], xyz[2]);
-	return (1);
-}
-
-static int	keep_face(t_obj_parser *p, char *cursor, size_t line, size_t seen)
-{
-	t_obj_face	*grown;
-
-	if (p->face_count >= UINT_MAX)
-		return (obj_error(p, line, "too many faces", NULL));
-	grown = array_reserve(p->faces, &p->face_cap, p->face_count + 1, sizeof(t_obj_face));
-	if (!grown)
-		return (0);
-	p->faces = grown;
-	p->faces[p->face_count++] = (t_obj_face){cursor, line, seen};
-	return (1);
-}
-
-/* A backslash at the end of a line joins it with the next one. */
-static void	join_continued_lines(char *s)
-{
-	while (*s)
-	{
-		if (s[0] == '\\' && s[1] == '\n')
-			memset(s, ' ', 2);
-		else if (s[0] == '\\' && s[1] == '\r' && s[2] == '\n')
-			memset(s, ' ', 3);
-		s++;
-	}
-}
-
-static int	first_pass(t_obj *obj, t_obj_parser *p, char *line)
-{
-	char	*next;
-	char	*cursor;
-	char	*key;
-	size_t	number;
-	int		ok;
-
-	number = 0;
-	ok = 1;
-	while (ok && *line)
-	{
-		number++;
-		next = strchr(line, '\n');
-		if (next)
-			*next++ = '\0';
-		else
-			next = line + strlen(line);
-		cursor = strchr(line, '#');
-		if (cursor)
-			*cursor = '\0';
-		cursor = line;
-		key = obj_token(&cursor);
-		if (key && strcmp(key, "v") == 0)
-			ok = parse_vertex(obj, p, cursor, number);
-		else if (key && strcmp(key, "f") == 0)
-			ok = keep_face(p, cursor, number, obj->position_count);
-		line = next;
-	}
-	return (ok);
-}
-
-/* Bounding-box diagonal of every vertex: what "degenerate" is measured against. */
+/* Bounding-box diagonal of every vertex: what "degenerate" is measured by */
 static float	model_size(const t_obj *obj)
 {
 	t_vec3	lo;
@@ -174,7 +57,7 @@ static int	second_pass(t_obj *obj, t_obj_parser *p)
 	return (1);
 }
 
-/* 1 with every face triangulated in obj; 0 after an error message naming the file and line. */
+/* 1 with every face triangulated; 0 after a message with file and line */
 int	obj_load(const char *path, t_obj *obj)
 {
 	t_obj_parser	p;
@@ -187,8 +70,8 @@ int	obj_load(const char *path, t_obj *obj)
 	buf = file_read(path, NULL);
 	if (!buf)
 		return (0);
-	join_continued_lines(buf);
-	ok = first_pass(obj, &p, buf) && second_pass(obj, &p);
+	obj_join_lines(buf);
+	ok = obj_first_pass(obj, &p, buf) && second_pass(obj, &p);
 	free(buf);
 	free(p.faces);
 	free(p.polygon);

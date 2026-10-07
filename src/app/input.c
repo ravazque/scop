@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   input.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
+/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "scop.h"
 
-/* One-shot keys through the GLFW callback (held keys: view.c); Ctrl+C also closes cleanly, for valgrind. */
+/* Keyboard set-up and Ctrl+C in the terminal, which also closes cleanly */
 
 static volatile sig_atomic_t	g_interrupted = 0;
 
@@ -10,34 +22,7 @@ static void	on_interrupt(int sig)
 	g_interrupted = 1;
 }
 
-static void	key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-	t_app	*app;
-
-	(void)scancode;
-	(void)mods;
-	if (action != GLFW_PRESS)
-		return ;
-	app = glfwGetWindowUserPointer(window);
-	if (key == GLFW_KEY_ESCAPE)
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	else if (key == GLFW_KEY_H)
-		hud_toggle(app);
-	else if (key == GLFW_KEY_T)
-		app->textured.on = !app->textured.on;
-	else if (key == GLFW_KEY_U)
-		app->triplanar.on = !app->triplanar.on;
-	else if (key == GLFW_KEY_L)
-		app->lit.on = !app->lit.on;
-	else if (key == GLFW_KEY_M)
-		app->draw_mode = (app->draw_mode + 1) % DRAW_MODES;
-	else if (key == GLFW_KEY_SPACE)
-		app->view.paused = !app->view.paused;
-	else if (key == GLFW_KEY_BACKSPACE)
-		view_reset(&app->view);
-}
-
-/* Installed first, so a Ctrl+C during start-up also ends cleanly; sigaction keeps the handler, signal() may reset it. */
+/* Installed first, so a Ctrl+C during start-up also ends cleanly */
 void	input_catch_interrupt(void)
 {
 	struct sigaction	sa;
@@ -49,10 +34,10 @@ void	input_catch_interrupt(void)
 	sigaction(SIGINT, &sa, NULL);
 }
 
+/* Sticky keys: a press shorter than a frame is still seen once */
 void	input_init(t_app *app)
 {
-	glfwSetWindowUserPointer(app->window, app);
-	glfwSetKeyCallback(app->window, key_callback);
+	glfwSetInputMode(app->window, GLFW_STICKY_KEYS, GLFW_TRUE);
 }
 
 int	input_interrupted(void)

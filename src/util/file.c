@@ -1,8 +1,29 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   file.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/07 15:07:38 by ravazque          #+#    #+#             */
+/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "scop.h"
 
-/* Whole files in memory. */
+/* Whole files in memory */
 
-/* NUL-terminated copy of a regular file, NULL with a message on failure; size (optional) excludes the terminator. */
+static char	*fail(FILE *f, char *buf, const char *path, const char *why)
+{
+	fprintf(stderr, "Error: %s: %s\n", path, why);
+	free(buf);
+	if (f)
+		fclose(f);
+	return (NULL);
+}
+
+/* NUL-terminated copy of a regular file; size (optional) skips the NUL */
 char	*file_read(const char *path, size_t *size)
 {
 	FILE		*f;
@@ -11,14 +32,14 @@ char	*file_read(const char *path, size_t *size)
 
 	f = fopen(path, "rb");
 	if (!f)
-		return (fprintf(stderr, "Error: cannot open %s: %s\n", path, strerror(errno)), NULL);
+		return (fail(NULL, NULL, path, strerror(errno)));
 	if (fstat(fileno(f), &st) != 0 || !S_ISREG(st.st_mode))
-		return (fprintf(stderr, "Error: %s is not a regular file\n", path), fclose(f), NULL);
+		return (fail(f, NULL, path, "not a regular file"));
 	buf = malloc((size_t)st.st_size + 1);
 	if (!buf)
-		return (fprintf(stderr, "Error: out of memory\n"), fclose(f), NULL);
+		return (fail(f, NULL, path, "out of memory"));
 	if (fread(buf, 1, (size_t)st.st_size, f) != (size_t)st.st_size)
-		return (fprintf(stderr, "Error: cannot read %s\n", path), free(buf), fclose(f), NULL);
+		return (fail(f, buf, path, "cannot read the file"));
 	buf[st.st_size] = '\0';
 	fclose(f);
 	if (size)

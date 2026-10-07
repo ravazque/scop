@@ -1,19 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   gl_loader.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
+/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef GL_LOADER_H
 # define GL_LOADER_H
 
-# include <stddef.h>		/* ptrdiff_t, for GLsizeiptr */
-
-/* OpenGL 4.1 core subset used by scop, loaded with glfwGetProcAddress; add a function to GL_FUNCTIONS and its alias. */
-
-typedef unsigned int	GLenum;
-typedef unsigned int	GLbitfield;
-typedef unsigned int	GLuint;
-typedef int				GLint;
-typedef int				GLsizei;
-typedef unsigned char	GLboolean;
-typedef float			GLfloat;
-typedef char			GLchar;
-typedef ptrdiff_t		GLsizeiptr;
+# include <stddef.h>		/* ptrdiff_t, the size type of glBufferData */
 
 # define GL_FALSE					0
 # define GL_TRUE					1
@@ -45,111 +45,123 @@ typedef ptrdiff_t		GLsizeiptr;
 # define GL_COMPILE_STATUS			0x8B81
 # define GL_LINK_STATUS				0x8B82
 
-/* X(return type, name without the gl prefix, parameter list) */
-# define GL_FUNCTIONS(X) \
-	X(void, Viewport, (GLint x, GLint y, GLsizei width, GLsizei height)) \
-	X(void, ClearColor, (GLfloat r, GLfloat g, GLfloat b, GLfloat a)) \
-	X(void, Clear, (GLbitfield mask)) \
-	X(void, Enable, (GLenum cap)) \
-	X(void, PolygonMode, (GLenum face, GLenum mode)) \
-	X(void, PointSize, (GLfloat size)) \
-	X(void, DrawArrays, (GLenum mode, GLint first, GLsizei count)) \
-	X(void, GenVertexArrays, (GLsizei n, GLuint *arrays)) \
-	X(void, BindVertexArray, (GLuint array)) \
-	X(void, DeleteVertexArrays, (GLsizei n, const GLuint *arrays)) \
-	X(void, GenBuffers, (GLsizei n, GLuint *buffers)) \
-	X(void, BindBuffer, (GLenum target, GLuint buffer)) \
-	X(void, BufferData, (GLenum target, GLsizeiptr size, const void *data, GLenum usage)) \
-	X(void, DeleteBuffers, (GLsizei n, const GLuint *buffers)) \
-	X(void, EnableVertexAttribArray, (GLuint index)) \
-	X(void, VertexAttribPointer, (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer)) \
-	X(GLuint, CreateShader, (GLenum type)) \
-	X(void, ShaderSource, (GLuint shader, GLsizei count, const GLchar *const *string, const GLint *length)) \
-	X(void, CompileShader, (GLuint shader)) \
-	X(void, GetShaderiv, (GLuint shader, GLenum pname, GLint *params)) \
-	X(void, GetShaderInfoLog, (GLuint shader, GLsizei size, GLsizei *length, GLchar *log)) \
-	X(void, DeleteShader, (GLuint shader)) \
-	X(GLuint, CreateProgram, (void)) \
-	X(void, AttachShader, (GLuint program, GLuint shader)) \
-	X(void, LinkProgram, (GLuint program)) \
-	X(void, GetProgramiv, (GLuint program, GLenum pname, GLint *params)) \
-	X(void, GetProgramInfoLog, (GLuint program, GLsizei size, GLsizei *length, GLchar *log)) \
-	X(void, DeleteProgram, (GLuint program)) \
-	X(void, UseProgram, (GLuint program)) \
-	X(GLint, GetUniformLocation, (GLuint program, const GLchar *name)) \
-	X(void, UniformMatrix4fv, (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)) \
-	X(void, Uniform1f, (GLint location, GLfloat v0)) \
-	X(void, Uniform2f, (GLint location, GLfloat v0, GLfloat v1)) \
-	X(void, Uniform1i, (GLint location, GLint v0)) \
-	X(void, GenTextures, (GLsizei n, GLuint *textures)) \
-	X(void, BindTexture, (GLenum target, GLuint texture)) \
-	X(void, ActiveTexture, (GLenum texture)) \
-	X(void, TexImage2D, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) \
-	X(void, TexParameteri, (GLenum target, GLenum pname, GLint param)) \
-	X(void, GenerateMipmap, (GLenum target)) \
-	X(void, DeleteTextures, (GLsizei n, const GLuint *textures))
+/* Entry points, with the GL types written as plain C types */
+typedef void			(*t_gl_viewport)(int x, int y, int width, int height);
+typedef void			(*t_gl_clear_color)(float r, float g, float b, float a);
+typedef void			(*t_gl_clear)(unsigned int mask);
+typedef void			(*t_gl_enable)(unsigned int cap);
+typedef void			(*t_gl_polygon_mode)(unsigned int face,
+	unsigned int mode);
+typedef void			(*t_gl_point_size)(float size);
+typedef void			(*t_gl_draw_arrays)(unsigned int mode, int first,
+	int count);
+typedef void			(*t_gl_gen_vertex_arrays)(int n, unsigned int *arrays);
+typedef void			(*t_gl_bind_vertex_array)(unsigned int array);
+typedef void			(*t_gl_delete_vertex_arrays)(int n,
+	const unsigned int *arrays);
+typedef void			(*t_gl_gen_buffers)(int n, unsigned int *buffers);
+typedef void			(*t_gl_bind_buffer)(unsigned int target,
+	unsigned int buffer);
+typedef void			(*t_gl_buffer_data)(unsigned int target, ptrdiff_t size,
+	const void *data, unsigned int usage);
+typedef void			(*t_gl_delete_buffers)(int n,
+	const unsigned int *buffers);
+typedef void			(*t_gl_enable_attrib)(unsigned int index);
+typedef void			(*t_gl_attrib_pointer)(unsigned int index, int size,
+	unsigned int type, unsigned char normalized, int stride,
+	const void *pointer);
+typedef unsigned int	(*t_gl_create_shader)(unsigned int type);
+typedef void			(*t_gl_shader_source)(unsigned int shader, int count,
+	const char *const *string, const int *length);
+typedef void			(*t_gl_compile_shader)(unsigned int shader);
+typedef void			(*t_gl_get_shader_iv)(unsigned int shader,
+	unsigned int pname, int *params);
+typedef void			(*t_gl_get_shader_log)(unsigned int shader, int size,
+	int *length, char *log);
+typedef void			(*t_gl_delete_shader)(unsigned int shader);
+typedef unsigned int	(*t_gl_create_program)(void);
+typedef void			(*t_gl_attach_shader)(unsigned int program,
+	unsigned int shader);
+typedef void			(*t_gl_link_program)(unsigned int program);
+typedef void			(*t_gl_get_program_iv)(unsigned int program,
+	unsigned int pname, int *params);
+typedef void			(*t_gl_get_program_log)(unsigned int program, int size,
+	int *length, char *log);
+typedef void			(*t_gl_delete_program)(unsigned int program);
+typedef void			(*t_gl_use_program)(unsigned int program);
+typedef int				(*t_gl_uniform_location)(unsigned int program,
+	const char *name);
+typedef void			(*t_gl_uniform_matrix4fv)(int location, int count,
+	unsigned char transpose, const float *value);
+typedef void			(*t_gl_uniform1f)(int location, float v0);
+typedef void			(*t_gl_uniform2f)(int location, float v0, float v1);
+typedef void			(*t_gl_uniform1i)(int location, int v0);
+typedef void			(*t_gl_gen_textures)(int n, unsigned int *textures);
+typedef void			(*t_gl_bind_texture)(unsigned int target,
+	unsigned int texture);
+typedef void			(*t_gl_active_texture)(unsigned int texture);
+typedef void			(*t_gl_tex_image_2d)(unsigned int target, int level,
+	int internalformat, int width, int height, int border, unsigned int format,
+	unsigned int type, const void *pixels);
+typedef void			(*t_gl_tex_parameteri)(unsigned int target,
+	unsigned int pname, int param);
+typedef void			(*t_gl_generate_mipmap)(unsigned int target);
+typedef void			(*t_gl_delete_textures)(int n,
+	const unsigned int *textures);
 
-# define GL_DECLARE(ret, name, params) \
-	typedef ret	(*t_gl_##name)params; \
-	extern t_gl_##name	g_gl_##name;
+/* Every OpenGL function scop calls, filled once with glfwGetProcAddress */
+typedef struct s_gl
+{
+	t_gl_viewport				viewport;
+	t_gl_clear_color			clear_color;
+	t_gl_clear					clear;
+	t_gl_enable					enable;
+	t_gl_polygon_mode			polygon_mode;
+	t_gl_point_size				point_size;
+	t_gl_draw_arrays			draw_arrays;
+	t_gl_gen_vertex_arrays		gen_vertex_arrays;
+	t_gl_bind_vertex_array		bind_vertex_array;
+	t_gl_delete_vertex_arrays	delete_vertex_arrays;
+	t_gl_gen_buffers			gen_buffers;
+	t_gl_bind_buffer			bind_buffer;
+	t_gl_buffer_data			buffer_data;
+	t_gl_delete_buffers			delete_buffers;
+	t_gl_enable_attrib			enable_attrib;
+	t_gl_attrib_pointer			attrib_pointer;
+	t_gl_create_shader			create_shader;
+	t_gl_shader_source			shader_source;
+	t_gl_compile_shader			compile_shader;
+	t_gl_get_shader_iv			get_shader_iv;
+	t_gl_get_shader_log			get_shader_log;
+	t_gl_delete_shader			delete_shader;
+	t_gl_create_program			create_program;
+	t_gl_attach_shader			attach_shader;
+	t_gl_link_program			link_program;
+	t_gl_get_program_iv			get_program_iv;
+	t_gl_get_program_log		get_program_log;
+	t_gl_delete_program			delete_program;
+	t_gl_use_program			use_program;
+	t_gl_uniform_location		uniform_location;
+	t_gl_uniform_matrix4fv		uniform_matrix4fv;
+	t_gl_uniform1f				uniform1f;
+	t_gl_uniform2f				uniform2f;
+	t_gl_uniform1i				uniform1i;
+	t_gl_gen_textures			gen_textures;
+	t_gl_bind_texture			bind_texture;
+	t_gl_active_texture			active_texture;
+	t_gl_tex_image_2d			tex_image_2d;
+	t_gl_tex_parameteri			tex_parameteri;
+	t_gl_generate_mipmap		generate_mipmap;
+	t_gl_delete_textures		delete_textures;
+}	t_gl;
 
-GL_FUNCTIONS(GL_DECLARE)
+/* ---- src/gl/gl_loader.c ---- */
+t_gl	*gl(void);
+void	gl_load_proc(void *slot, const char *name, int *ok);
+int		gl_load(void);
 
-# undef GL_DECLARE
-
-/* Used only by gl_loader.c: defines each pointer, and loads it inside gl_load_functions (a miss sets its ok to 0). */
-# define GL_DEFINE(ret, name, params)	t_gl_##name	g_gl_##name;
-# define GL_LOAD(ret, name, params) \
-	g_gl_##name = (t_gl_##name)glfwGetProcAddress("gl" #name); \
-	if (!g_gl_##name) \
-	{ \
-		fprintf(stderr, "Error: OpenGL function gl" #name " not found\n"); \
-		ok = 0; \
-	}
-
-/* Prefixed pointers, so they never clash with the symbols the GL library exports. */
-# define glViewport					g_gl_Viewport
-# define glClearColor				g_gl_ClearColor
-# define glClear					g_gl_Clear
-# define glEnable					g_gl_Enable
-# define glPolygonMode				g_gl_PolygonMode
-# define glPointSize				g_gl_PointSize
-# define glDrawArrays				g_gl_DrawArrays
-# define glGenVertexArrays			g_gl_GenVertexArrays
-# define glBindVertexArray			g_gl_BindVertexArray
-# define glDeleteVertexArrays		g_gl_DeleteVertexArrays
-# define glGenBuffers				g_gl_GenBuffers
-# define glBindBuffer				g_gl_BindBuffer
-# define glBufferData				g_gl_BufferData
-# define glDeleteBuffers			g_gl_DeleteBuffers
-# define glEnableVertexAttribArray	g_gl_EnableVertexAttribArray
-# define glVertexAttribPointer		g_gl_VertexAttribPointer
-# define glCreateShader				g_gl_CreateShader
-# define glShaderSource				g_gl_ShaderSource
-# define glCompileShader			g_gl_CompileShader
-# define glGetShaderiv				g_gl_GetShaderiv
-# define glGetShaderInfoLog			g_gl_GetShaderInfoLog
-# define glDeleteShader				g_gl_DeleteShader
-# define glCreateProgram			g_gl_CreateProgram
-# define glAttachShader				g_gl_AttachShader
-# define glLinkProgram				g_gl_LinkProgram
-# define glGetProgramiv				g_gl_GetProgramiv
-# define glGetProgramInfoLog		g_gl_GetProgramInfoLog
-# define glDeleteProgram			g_gl_DeleteProgram
-# define glUseProgram				g_gl_UseProgram
-# define glGetUniformLocation		g_gl_GetUniformLocation
-# define glUniformMatrix4fv			g_gl_UniformMatrix4fv
-# define glUniform1f				g_gl_Uniform1f
-# define glUniform2f				g_gl_Uniform2f
-# define glUniform1i				g_gl_Uniform1i
-# define glGenTextures				g_gl_GenTextures
-# define glBindTexture				g_gl_BindTexture
-# define glActiveTexture			g_gl_ActiveTexture
-# define glTexImage2D				g_gl_TexImage2D
-# define glTexParameteri			g_gl_TexParameteri
-# define glGenerateMipmap			g_gl_GenerateMipmap
-# define glDeleteTextures			g_gl_DeleteTextures
-
-int	gl_load_functions(void);
+/* ---- src/gl/gl_load_programs.c ---- */
+void	gl_load_programs(t_gl *g, int *ok);
+void	gl_load_textures(t_gl *g, int *ok);
 
 #endif

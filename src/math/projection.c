@@ -1,15 +1,27 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   projection.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
+/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "scop.h"
 
-/* Camera matrices: world -> eye (look-at) and eye -> clip space (perspective). */
+/* Camera matrices: world -> eye (look-at), eye -> clip (perspective) */
 
-/* Right-handed eye space looking down -Z, depth mapped to [-1, 1] as OpenGL expects. */
-t_mat4	mat4_perspective(float fovy_radians, float aspect, float near_p, float far_p)
+/* Right-handed eye space looking down -Z, depth to [-1, 1] as in OpenGL */
+t_mat4	mat4_perspective(float fovy, float aspect, float near_p, float far_p)
 {
 	t_mat4	r;
 	float	f;
 
 	memset(&r, 0, sizeof(r));
-	f = 1.0f / tanf(fovy_radians * 0.5f);
+	f = 1.0f / tanf(fovy * 0.5f);
 	r.m[0] = f / aspect;
 	r.m[5] = f;
 	r.m[10] = (far_p + near_p) / (near_p - far_p);

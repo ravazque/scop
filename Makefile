@@ -14,11 +14,15 @@ OBJDIR		= obj
 FLAGS_STAMP	= $(OBJDIR)/.flags
 
 SRCS		= main.c \
-			  app/app.c app/args.c app/window.c app/input.c app/view.c app/fade.c app/hud.c app/draw.c \
-			  gl/gl_loader.c gl/shader.c gl/mesh.c gl/texture.c \
-			  math/vec3.c math/mat4.c math/projection.c \
-			  obj/obj_load.c obj/obj_face.c obj/obj_triangulate.c \
-			  image/bmp.c \
+			  app/app.c app/args.c app/window.c app/input.c app/keys.c \
+			  app/view.c app/fade.c app/hud.c app/draw.c \
+			  gl/gl_loader.c gl/gl_load_programs.c gl/shader.c \
+			  gl/shader_uniform.c gl/mesh.c gl/mesh_vertices.c gl/texture.c \
+			  math/vec3.c math/vec3_geometry.c math/mat4.c math/mat4_rotation.c \
+			  math/projection.c \
+			  obj/obj_load.c obj/obj_lines.c obj/obj_token.c obj/obj_face.c \
+			  obj/obj_triangulate.c obj/obj_project.c obj/obj_ear.c \
+			  image/bmp.c image/bmp_header.c \
 			  util/file.c util/array.c
 
 OBJS		= $(SRCS:%.c=$(OBJDIR)/%.o)
