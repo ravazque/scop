@@ -16,7 +16,9 @@ FLAGS_STAMP	= $(OBJDIR)/.flags
 SRCS		= main.c \
 			  app/app.c app/args.c app/window.c app/input.c app/hud.c app/draw.c \
 			  gl/gl_loader.c gl/shader.c gl/mesh.c \
-			  math/vec3.c math/mat4.c math/projection.c
+			  math/vec3.c math/mat4.c math/projection.c \
+			  obj/obj_load.c obj/obj_face.c obj/obj_triangulate.c \
+			  util/file.c util/array.c
 
 OBJS		= $(SRCS:%.c=$(OBJDIR)/%.o)
 DEPS		= $(OBJS:.o=.d)

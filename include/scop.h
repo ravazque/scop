@@ -1,19 +1,25 @@
 #ifndef SCOP_H
 # define SCOP_H
 
-# define _POSIX_C_SOURCE	200809L	/* POSIX.1-2008 (nanosleep, sigaction); must precede every system header */
+# define _POSIX_C_SOURCE	200809L	/* POSIX.1-2008 (nanosleep, sigaction, fileno); must precede every system header */
 # define GLFW_INCLUDE_NONE			/* no GL header from GLFW: gl_loader.h declares OpenGL */
 
 # include <GLFW/glfw3.h>	/* window, OpenGL context, input and timer */
-# include <math.h>			/* fminf, fmodf, lroundf, tanf, sinf, cosf, sqrtf */
+# include <errno.h>			/* errno, ERANGE from strtol */
+# include <limits.h>		/* UINT_MAX, INT_MAX: index and draw-count limits */
+# include <math.h>			/* fminf, fmodf, lroundf, isfinite, tanf, sinf, cosf, sqrtf */
 # include <signal.h>		/* sigaction, to close cleanly on Ctrl+C */
-# include <stdio.h>			/* fprintf, snprintf and the shader file reads */
-# include <stdlib.h>		/* malloc, free */
-# include <string.h>		/* memset, strlen, strcmp */
+# include <stdint.h>		/* SIZE_MAX */
+# include <stdio.h>			/* fprintf, snprintf, fopen, fread */
+# include <stdlib.h>		/* malloc, realloc, free, strtof, strtol */
+# include <string.h>		/* memset, memmove, strlen, strcmp, strchr, strerror */
+# include <sys/stat.h>		/* fstat, S_ISREG: only regular files are read */
 # include <time.h>			/* nanosleep, to hold FPS_CAP */
 
 # include "gl_loader.h"		/* OpenGL types, constants and loaded entry points */
 # include "vecmath.h"		/* vectors, matrices and projections */
+# include "util.h"			/* whole-file reads and growable arrays */
+# include "obj.h"			/* .obj parsing and triangulation */
 # include "render.h"		/* shaders and GPU meshes */
 
 /* ---- Window: size in screen coordinates; MIN/MAX bound both the arguments and resizing ---- */

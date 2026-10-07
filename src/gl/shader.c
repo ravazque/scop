@@ -2,31 +2,6 @@
 
 /* Loads, compiles and links a GLSL program from two files, and sets its uniforms by name. */
 
-/* Whole file in a malloc'd, NUL-terminated buffer. */
-static char	*read_file(const char *path)
-{
-	FILE	*f;
-	long	size;
-	char	*buf;
-	size_t	rd;
-
-	f = fopen(path, "rb");
-	if (!f)
-		return (fprintf(stderr, "Error: cannot open %s\n", path), NULL);
-	size = -1;
-	if (fseek(f, 0, SEEK_END) == 0)
-		size = ftell(f);
-	if (size < 0 || fseek(f, 0, SEEK_SET) != 0)
-		return (fprintf(stderr, "Error: cannot read %s\n", path), fclose(f), NULL);
-	buf = malloc((size_t)size + 1);
-	if (!buf)
-		return (fprintf(stderr, "Error: out of memory\n"), fclose(f), NULL);
-	rd = fread(buf, 1, (size_t)size, f);
-	buf[rd] = '\0';
-	fclose(f);
-	return (buf);
-}
-
 static GLuint	compile_stage(GLenum type, const char *path)
 {
 	char		*src;
@@ -35,7 +10,7 @@ static GLuint	compile_stage(GLenum type, const char *path)
 	GLint		ok;
 	char		log[SHADER_LOG_SIZE];
 
-	src = read_file(path);
+	src = file_read(path, NULL);
 	if (!src)
 		return (0);
 	sources[0] = src;
