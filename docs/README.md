@@ -56,7 +56,7 @@ Run it from the repository root, so `shaders/` is found. The model and texture n
 | `H` | show / hide the frame rate and the model path in the window title |
 | `ESC` | quit |
 
-Rotation and movement keys act while held, at a speed that does not depend on the frame rate. The model is centered on its bounding box and scaled to fit the view, so it always turns around its own center.
+Rotation and movement keys act while held, at a speed that does not depend on the frame rate. Frames follow the monitor's refresh (vsync), so the picture never tears; if the driver ignores vsync, the loop is capped at 240 frames per second. The model is centered on its bounding box and scaled to fit the view, so it always turns around its own center.
 
 The window title is `scop` by default and `scop  /  FPS:<rate> | '<model path>' |` while `H` has it shown, with the path exactly as given on the command line. `Ctrl+C` in the terminal also closes the program cleanly.
 

@@ -43,7 +43,7 @@ int	app_init(t_app *app, int argc, char **argv)
 
 static void	limit_frame_rate(double frame_start)
 {
-	const double	remaining = frame_start + 1.0 / FPS_CAP - glfwGetTime();
+	const double	remaining = frame_start + 1.0 / FPS_CAP_NO_VSYNC - glfwGetTime();
 	struct timespec	pause;
 
 	if (remaining <= 0.0)

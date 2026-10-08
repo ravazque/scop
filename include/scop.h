@@ -57,7 +57,7 @@
 # define MOVE_LIMIT_NEAR		1.2f
 # define MOVE_LIMIT_FAR			-12.0f
 
-# define FPS_CAP				60
+# define FPS_CAP_NO_VSYNC		240
 # define MAX_FRAME_SECONDS		0.25f
 # define HUD_REFRESH_SECONDS	0.25f
 # define HUD_TITLE_SIZE			512

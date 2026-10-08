@@ -23,7 +23,7 @@ int	window_init(t_app *app)
 	}
 	glfwSetWindowSizeLimits(app->window, WIN_WIDTH_MIN, WIN_HEIGHT_MIN, WIN_WIDTH_MAX, WIN_HEIGHT_MAX);
 	glfwMakeContextCurrent(app->window);
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 	if (!gl_load())
 		return (window_destroy(app), 0);
 	return (1);
