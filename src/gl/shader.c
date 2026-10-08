@@ -1,18 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   shader.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
-
-/* GLSL programs from two files, with the driver's log when they fail */
 
 /* 0 when the stage does not compile, after printing the driver's log */
 static unsigned int	check_stage(unsigned int shader, const char *path)
@@ -33,16 +19,16 @@ static unsigned int	check_stage(unsigned int shader, const char *path)
 static unsigned int	compile_stage(unsigned int type, const char *path)
 {
 	const t_gl		*g = gl();
-	const char		*sources[1];
+	const char		*source;
 	unsigned int	shader;
 
-	sources[0] = file_read(path, NULL);
-	if (!sources[0])
+	source = file_read(path, NULL);
+	if (!source)
 		return (0);
 	shader = g->create_shader(type);
-	g->shader_source(shader, 1, sources, NULL);
+	g->shader_source(shader, 1, &source, NULL);
 	g->compile_shader(shader);
-	free((char *)sources[0]);
+	free((char *)source);
 	return (check_stage(shader, path));
 }
 
@@ -66,19 +52,37 @@ static unsigned int	link_program(unsigned int vs, unsigned int fs)
 	return (0);
 }
 
-/* 0 on failure; the stages are deleted once linked */
+/* The linked program keeps its own copy of the stages, so they are deleted either way */
 unsigned int	shader_load(const char *vert_path, const char *frag_path)
 {
-	unsigned int	vs;
-	unsigned int	fs;
-	unsigned int	program;
+	const unsigned int	vs = compile_stage(GL_VERTEX_SHADER, vert_path);
+	const unsigned int	fs = compile_stage(GL_FRAGMENT_SHADER, frag_path);
+	unsigned int		program;
 
-	vs = compile_stage(GL_VERTEX_SHADER, vert_path);
-	fs = compile_stage(GL_FRAGMENT_SHADER, frag_path);
 	program = 0;
 	if (vs && fs)
 		program = link_program(vs, fs);
 	gl()->delete_shader(vs);
 	gl()->delete_shader(fs);
 	return (program);
+}
+
+void	shader_set_mat4(unsigned int program, const char *name, t_mat4 value)
+{
+	gl()->uniform_matrix4fv(gl()->uniform_location(program, name), 1, GL_FALSE, value.m);
+}
+
+void	shader_set_float(unsigned int program, const char *name, float value)
+{
+	gl()->uniform1f(gl()->uniform_location(program, name), value);
+}
+
+void	shader_set_vec2(unsigned int program, const char *name, float x, float y)
+{
+	gl()->uniform2f(gl()->uniform_location(program, name), x, y);
+}
+
+void	shader_set_int(unsigned int program, const char *name, int value)
+{
+	gl()->uniform1i(gl()->uniform_location(program, name), value);
 }

@@ -1,18 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   mat4.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
-
-/* 4x4 column-major model transforms */
 
 t_mat4	mat4_identity(void)
 {
@@ -26,7 +12,7 @@ t_mat4	mat4_identity(void)
 	return (r);
 }
 
-/* a * b: b is applied first, then a; element i is (column i / 4, row i % 4) */
+/* a * b applies b first, then a; element i sits at column i / 4, row i % 4 */
 t_mat4	mat4_mul(t_mat4 a, t_mat4 b)
 {
 	t_mat4	r;
@@ -34,17 +20,9 @@ t_mat4	mat4_mul(t_mat4 a, t_mat4 b)
 	int		k;
 
 	memset(&r, 0, sizeof(r));
-	i = 0;
-	while (i < 16)
-	{
-		k = 0;
-		while (k < 4)
-		{
+	for (i = 0; i < 16; i++)
+		for (k = 0; k < 4; k++)
 			r.m[i] += a.m[k * 4 + i % 4] * b.m[(i / 4) * 4 + k];
-			k++;
-		}
-		i++;
-	}
 	return (r);
 }
 
@@ -59,13 +37,45 @@ t_mat4	mat4_translation(t_vec3 t)
 	return (r);
 }
 
-t_mat4	mat4_scale(t_vec3 s)
+/* Rotations turn counter-clockwise when looking down the axis towards the origin */
+t_mat4	mat4_rotation_x(float radians)
 {
-	t_mat4	r;
+	const float	c = cosf(radians);
+	const float	s = sinf(radians);
+	t_mat4		r;
 
 	r = mat4_identity();
-	r.m[0] = s.x;
-	r.m[5] = s.y;
-	r.m[10] = s.z;
+	r.m[5] = c;
+	r.m[6] = s;
+	r.m[9] = -s;
+	r.m[10] = c;
+	return (r);
+}
+
+t_mat4	mat4_rotation_y(float radians)
+{
+	const float	c = cosf(radians);
+	const float	s = sinf(radians);
+	t_mat4		r;
+
+	r = mat4_identity();
+	r.m[0] = c;
+	r.m[2] = -s;
+	r.m[8] = s;
+	r.m[10] = c;
+	return (r);
+}
+
+t_mat4	mat4_rotation_z(float radians)
+{
+	const float	c = cosf(radians);
+	const float	s = sinf(radians);
+	t_mat4		r;
+
+	r = mat4_identity();
+	r.m[0] = c;
+	r.m[1] = s;
+	r.m[4] = -s;
+	r.m[5] = c;
 	return (r);
 }

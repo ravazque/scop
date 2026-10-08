@@ -1,18 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   app.c                                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
-
-/* Start-up, main loop and shut-down; the loop sleeps to hold FPS_CAP */
 
 static int	scene_init(t_app *app, const t_obj *obj, const t_image *image)
 {
@@ -32,7 +18,7 @@ static int	scene_init(t_app *app, const t_obj *obj, const t_image *image)
 	return (1);
 }
 
-/* The files are read before the window opens, so a bad one fails fast */
+/* Model and texture are read before the window opens, so a bad file fails without one */
 int	app_init(t_app *app, int argc, char **argv)
 {
 	t_obj	obj;
@@ -57,10 +43,9 @@ int	app_init(t_app *app, int argc, char **argv)
 
 static void	limit_frame_rate(double frame_start)
 {
+	const double	remaining = frame_start + 1.0 / FPS_CAP - glfwGetTime();
 	struct timespec	pause;
-	double			remaining;
 
-	remaining = frame_start + 1.0 / FPS_CAP - glfwGetTime();
 	if (remaining <= 0.0)
 		return ;
 	pause.tv_sec = 0;
@@ -78,9 +63,8 @@ void	app_run(t_app *app)
 	while (!glfwWindowShouldClose(app->window) && !input_interrupted())
 	{
 		glfwPollEvents();
-		input_poll(app);
 		now = glfwGetTime();
-		dt = fminf((float)(now - prev), MAX_FRAME_TIME);
+		dt = fminf((float)(now - prev), MAX_FRAME_SECONDS);
 		prev = now;
 		view_update(&app->view, app->window, dt);
 		fade_update(&app->textured, dt);
@@ -93,13 +77,13 @@ void	app_run(t_app *app)
 	}
 }
 
-/* Safe after a failed app_init: GL objects go only while the context lives */
+/* Safe after a failed app_init: GL objects are deleted only while the context exists */
 void	app_destroy(t_app *app)
 {
 	if (app->window)
 	{
 		mesh_destroy(&app->mesh);
-		(gl()->delete_textures)(1, &app->texture);
+		gl()->delete_textures(1, &app->texture);
 		gl()->delete_program(app->program);
 	}
 	window_destroy(app);

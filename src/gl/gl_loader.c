@@ -1,18 +1,52 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   gl_loader.c                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
 
-/* OpenGL entry points, resolved by name through GLFW */
+static const struct s_gl_proc
+{
+	size_t		offset;
+	const char	*name;
+}	g_procs[] = {
+	{offsetof(t_gl, viewport), "glViewport"},
+	{offsetof(t_gl, clear_color), "glClearColor"},
+	{offsetof(t_gl, clear), "glClear"},
+	{offsetof(t_gl, enable), "glEnable"},
+	{offsetof(t_gl, polygon_mode), "glPolygonMode"},
+	{offsetof(t_gl, point_size), "glPointSize"},
+	{offsetof(t_gl, draw_arrays), "glDrawArrays"},
+	{offsetof(t_gl, gen_vertex_arrays), "glGenVertexArrays"},
+	{offsetof(t_gl, bind_vertex_array), "glBindVertexArray"},
+	{offsetof(t_gl, delete_vertex_arrays), "glDeleteVertexArrays"},
+	{offsetof(t_gl, gen_buffers), "glGenBuffers"},
+	{offsetof(t_gl, bind_buffer), "glBindBuffer"},
+	{offsetof(t_gl, buffer_data), "glBufferData"},
+	{offsetof(t_gl, delete_buffers), "glDeleteBuffers"},
+	{offsetof(t_gl, enable_attrib), "glEnableVertexAttribArray"},
+	{offsetof(t_gl, attrib_pointer), "glVertexAttribPointer"},
+	{offsetof(t_gl, create_shader), "glCreateShader"},
+	{offsetof(t_gl, shader_source), "glShaderSource"},
+	{offsetof(t_gl, compile_shader), "glCompileShader"},
+	{offsetof(t_gl, get_shader_iv), "glGetShaderiv"},
+	{offsetof(t_gl, get_shader_log), "glGetShaderInfoLog"},
+	{offsetof(t_gl, delete_shader), "glDeleteShader"},
+	{offsetof(t_gl, create_program), "glCreateProgram"},
+	{offsetof(t_gl, attach_shader), "glAttachShader"},
+	{offsetof(t_gl, link_program), "glLinkProgram"},
+	{offsetof(t_gl, get_program_iv), "glGetProgramiv"},
+	{offsetof(t_gl, get_program_log), "glGetProgramInfoLog"},
+	{offsetof(t_gl, delete_program), "glDeleteProgram"},
+	{offsetof(t_gl, use_program), "glUseProgram"},
+	{offsetof(t_gl, uniform_location), "glGetUniformLocation"},
+	{offsetof(t_gl, uniform_matrix4fv), "glUniformMatrix4fv"},
+	{offsetof(t_gl, uniform1f), "glUniform1f"},
+	{offsetof(t_gl, uniform2f), "glUniform2f"},
+	{offsetof(t_gl, uniform1i), "glUniform1i"},
+	{offsetof(t_gl, gen_textures), "glGenTextures"},
+	{offsetof(t_gl, bind_texture), "glBindTexture"},
+	{offsetof(t_gl, active_texture), "glActiveTexture"},
+	{offsetof(t_gl, tex_image_2d), "glTexImage2D"},
+	{offsetof(t_gl, tex_parameteri), "glTexParameteri"},
+	{offsetof(t_gl, generate_mipmap), "glGenerateMipmap"},
+	{offsetof(t_gl, delete_textures), "glDeleteTextures"},
+};
 
 t_gl	*gl(void)
 {
@@ -21,53 +55,23 @@ t_gl	*gl(void)
 	return (&table);
 }
 
-/* Function pointers share one representation, so the address is copied as is */
-void	gl_load_proc(void *slot, const char *name, int *ok)
-{
-	GLFWglproc	proc;
-
-	proc = glfwGetProcAddress(name);
-	if (!proc)
-	{
-		fprintf(stderr, "Error: OpenGL function %s not found\n", name);
-		*ok = 0;
-	}
-	memcpy(slot, &proc, sizeof(proc));
-}
-
-static void	load_state(t_gl *g, int *ok)
-{
-	gl_load_proc(&g->viewport, "glViewport", ok);
-	gl_load_proc(&g->clear_color, "glClearColor", ok);
-	gl_load_proc(&g->clear, "glClear", ok);
-	gl_load_proc(&g->enable, "glEnable", ok);
-	gl_load_proc(&g->polygon_mode, "glPolygonMode", ok);
-	gl_load_proc(&g->point_size, "glPointSize", ok);
-	gl_load_proc(&g->draw_arrays, "glDrawArrays", ok);
-}
-
-static void	load_buffers(t_gl *g, int *ok)
-{
-	gl_load_proc(&g->gen_vertex_arrays, "glGenVertexArrays", ok);
-	gl_load_proc(&g->bind_vertex_array, "glBindVertexArray", ok);
-	gl_load_proc(&g->delete_vertex_arrays, "glDeleteVertexArrays", ok);
-	gl_load_proc(&g->gen_buffers, "glGenBuffers", ok);
-	gl_load_proc(&g->bind_buffer, "glBindBuffer", ok);
-	gl_load_proc(&g->buffer_data, "glBufferData", ok);
-	gl_load_proc(&g->delete_buffers, "glDeleteBuffers", ok);
-	gl_load_proc(&g->enable_attrib, "glEnableVertexAttribArray", ok);
-	gl_load_proc(&g->attrib_pointer, "glVertexAttribPointer", ok);
-}
-
-/* Needs a current context; reports every missing function */
+/* Needs a current context. Function pointers share one representation, so each address is copied as is */
 int	gl_load(void)
 {
-	int	ok;
+	GLFWglproc	proc;
+	size_t		i;
+	int			ok;
 
 	ok = 1;
-	load_state(gl(), &ok);
-	load_buffers(gl(), &ok);
-	gl_load_programs(gl(), &ok);
-	gl_load_textures(gl(), &ok);
+	for (i = 0; i < sizeof(g_procs) / sizeof(g_procs[0]); i++)
+	{
+		proc = glfwGetProcAddress(g_procs[i].name);
+		if (!proc)
+		{
+			fprintf(stderr, "Error: OpenGL function %s not found\n", g_procs[i].name);
+			ok = 0;
+		}
+		memcpy((char *)gl() + g_procs[i].offset, &proc, sizeof(proc));
+	}
 	return (ok);
 }

@@ -1,20 +1,5 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   args.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
 
-/* <model.obj> [texture.bmp] [width height]; a bad size uses the default */
-
-/* The file name is a name, not empty and not ending in '.', plus extension */
 static int	has_extension(const char *path, const char *extension)
 {
 	const char		*name = strrchr(path, '/');
@@ -31,7 +16,7 @@ static int	has_extension(const char *path, const char *extension)
 	return (name[len - ext_len - 1] != '.');
 }
 
-/* -2 when s is not a number, -1 when it leaves [min, max]; cannot overflow */
+/* -2 when s is not a number, -1 when out of [min, max]; past max digits stop adding, so no overflow */
 static int	parse_dim(const char *s, int min, int max)
 {
 	int	v;
@@ -40,37 +25,32 @@ static int	parse_dim(const char *s, int min, int max)
 	if (s[0] == '\0')
 		return (-2);
 	v = 0;
-	i = 0;
-	while (s[i] != '\0')
+	for (i = 0; s[i] != '\0'; i++)
 	{
 		if (s[i] < '0' || s[i] > '9')
 			return (-2);
 		if (v <= max)
 			v = v * 10 + (s[i] - '0');
-		i++;
 	}
 	if (v < min || v > max)
 		return (-1);
 	return (v);
 }
 
-/* range: minimum, maximum and default */
-static int	resolve_dim(const char *arg, const int *range, const char *label)
+static int	resolve_dim(const char *arg, const char *label, int min, int max, int fallback)
 {
-	const int	value = parse_dim(arg, range[0], range[1]);
+	const int	value = parse_dim(arg, min, max);
 
 	if (value == -2)
-		fprintf(stderr, "%s '%s' is not a valid number; using default %d\n",
-			label, arg, range[2]);
+		fprintf(stderr, "%s '%s' is not a valid number; using default %d\n", label, arg, fallback);
 	if (value == -1)
-		fprintf(stderr, "%s '%s' is out of range [%d..%d]; using default %d\n",
-			label, arg, range[0], range[1], range[2]);
+		fprintf(stderr, "%s '%s' is out of range [%d..%d]; using default %d\n", label, arg, min, max, fallback);
 	if (value < 0)
-		return (range[2]);
+		return (fallback);
 	return (value);
 }
 
-/* With 3 or 5 arguments the second one is the texture: index of the size */
+/* With 3 or 5 arguments the second one is the texture; returns where the size starts, or -1 */
 static int	texture_arg(t_app *app, int argc, char **argv)
 {
 	app->texture_path = TEXTURE_DEFAULT;
@@ -87,9 +67,7 @@ static int	texture_arg(t_app *app, int argc, char **argv)
 
 int	args_parse(t_app *app, int argc, char **argv)
 {
-	const int	width[3] = {WIN_WIDTH_MIN, WIN_WIDTH_MAX, WIN_WIDTH};
-	const int	height[3] = {WIN_HEIGHT_MIN, WIN_HEIGHT_MAX, WIN_HEIGHT};
-	int			size_at;
+	int	size_at;
 
 	if (argc < 2 || argc > 5)
 		return (fprintf(stderr, ARGS_USAGE, argv[0]), 0);
@@ -106,8 +84,8 @@ int	args_parse(t_app *app, int argc, char **argv)
 	app->height = WIN_HEIGHT;
 	if (argc - size_at == 2)
 	{
-		app->width = resolve_dim(argv[size_at], width, "Width");
-		app->height = resolve_dim(argv[size_at + 1], height, "Height");
+		app->width = resolve_dim(argv[size_at], "Width", WIN_WIDTH_MIN, WIN_WIDTH_MAX, WIN_WIDTH);
+		app->height = resolve_dim(argv[size_at + 1], "Height", WIN_HEIGHT_MIN, WIN_HEIGHT_MAX, WIN_HEIGHT);
 	}
 	return (1);
 }

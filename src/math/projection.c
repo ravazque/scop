@@ -1,27 +1,12 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   projection.c                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
 
-/* Camera matrices: world -> eye (look-at), eye -> clip (perspective) */
-
-/* Right-handed eye space looking down -Z, depth to [-1, 1] as in OpenGL */
+/* Right-handed eye space looking down -Z, with depth mapped to [-1, 1] as OpenGL expects */
 t_mat4	mat4_perspective(float fovy, float aspect, float near_p, float far_p)
 {
-	t_mat4	r;
-	float	f;
+	const float	f = 1.0f / tanf(fovy * 0.5f);
+	t_mat4		r;
 
 	memset(&r, 0, sizeof(r));
-	f = 1.0f / tanf(fovy * 0.5f);
 	r.m[0] = f / aspect;
 	r.m[5] = f;
 	r.m[10] = (far_p + near_p) / (near_p - far_p);
@@ -30,16 +15,14 @@ t_mat4	mat4_perspective(float fovy, float aspect, float near_p, float far_p)
 	return (r);
 }
 
+/* The rows are the camera's side, up and back axes, so the matrix takes world space into eye space */
 t_mat4	mat4_look_at(t_vec3 eye, t_vec3 target, t_vec3 up)
 {
-	t_mat4	r;
-	t_vec3	f;
-	t_vec3	s;
-	t_vec3	u;
+	const t_vec3	f = vec3_normalize(vec3_sub(target, eye));
+	const t_vec3	s = vec3_normalize(vec3_cross(f, up));
+	const t_vec3	u = vec3_cross(s, f);
+	t_mat4			r;
 
-	f = vec3_normalize(vec3_sub(target, eye));
-	s = vec3_normalize(vec3_cross(f, up));
-	u = vec3_cross(s, f);
 	r = mat4_identity();
 	r.m[0] = s.x;
 	r.m[4] = s.y;

@@ -1,21 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   array.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 15:07:38 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
 
-/* Growable arrays: the capacity doubles, so n appends cost O(n) in total */
-
-/* Room for need elements: the (maybe moved) array, or NULL with a message,
-   leaving data and cap untouched */
+/* Doubling keeps n appends at O(n) in total; on failure data and cap are left untouched */
 void	*array_reserve(void *data, size_t *cap, size_t need, size_t elem_size)
 {
 	size_t	new_cap;

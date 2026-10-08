@@ -1,33 +1,30 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   draw.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 12:50:14 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
 
-/* One frame: the model in perspective over the cleared background */
+void	fade_update(t_fade *fade, float dt)
+{
+	const float	step = dt / FADE_SECONDS;
+
+	if (fade->on)
+		fade->value = fminf(fade->value + step, 1.0f);
+	else
+		fade->value = fmaxf(fade->value - step, 0.0f);
+}
+
+/* Smoothstep of the linear value, so every transition starts and ends gently */
+static float	fade_eased(const t_fade *fade)
+{
+	return (fade->value * fade->value * (3.0f - 2.0f * fade->value));
+}
 
 static void	set_uniforms(t_app *app, float aspect)
 {
 	const unsigned int	p = app->program;
-	t_mat4				view;
-	t_mat4				projection;
+	const t_vec3		eye = vec3(0.0f, CAMERA_HEIGHT, CAMERA_DISTANCE);
 
-	view = mat4_look_at(vec3(0.0f, CAMERA_HEIGHT, CAMERA_DISTANCE),
-			vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-	projection = mat4_perspective(FOV, aspect, NEAR_PLANE, FAR_PLANE);
 	shader_set_mat4(p, "uModel", view_model_matrix(&app->view));
-	shader_set_mat4(p, "uView", view);
-	shader_set_mat4(p, "uProjection", projection);
-	shader_set_vec2(p, "uTextureScale", app->texture_scale[0],
-		app->texture_scale[1]);
+	shader_set_mat4(p, "uView", mat4_look_at(eye, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)));
+	shader_set_mat4(p, "uProjection", mat4_perspective(FOV, aspect, NEAR_PLANE, FAR_PLANE));
+	shader_set_vec2(p, "uTextureScale", app->texture_scale[0], app->texture_scale[1]);
 	shader_set_float(p, "uTextureMix", fade_eased(&app->textured));
 	shader_set_float(p, "uTriplanar", fade_eased(&app->triplanar));
 	shader_set_float(p, "uLighting", fade_eased(&app->lit));

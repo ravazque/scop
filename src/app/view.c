@@ -1,24 +1,8 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   view.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 16:29:27 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
 
-/* Keyboard-driven model transform: W/S, A/D, Q/E rotate; arrows, R/F move */
-
-/* 1, -1 or 0 from a pair of held keys */
 static float	axis(GLFWwindow *w, int negative, int positive)
 {
-	return ((float)(glfwGetKey(w, positive) == GLFW_PRESS)
-		- (float)(glfwGetKey(w, negative) == GLFW_PRESS));
+	return ((float)(glfwGetKey(w, positive) == GLFW_PRESS) - (float)(glfwGetKey(w, negative) == GLFW_PRESS));
 }
 
 static float	clamp(float value, float low, float high)
@@ -26,6 +10,7 @@ static float	clamp(float value, float low, float high)
 	return (fminf(fmaxf(value, low), high));
 }
 
+/* Held keys: W/S, A/D and Q/E rotate around X, Y and Z; the arrows and R/F move */
 void	view_update(t_view *v, GLFWwindow *w, float dt)
 {
 	const float	turn = ROTATE_SPEED * dt;
@@ -38,12 +23,8 @@ void	view_update(t_view *v, GLFWwindow *w, float dt)
 	v->position[0] += move * axis(w, GLFW_KEY_LEFT, GLFW_KEY_RIGHT);
 	v->position[1] += move * axis(w, GLFW_KEY_DOWN, GLFW_KEY_UP);
 	v->position[2] += move * axis(w, GLFW_KEY_F, GLFW_KEY_R);
-	i = 0;
-	while (i < 3)
-	{
+	for (i = 0; i < 3; i++)
 		v->rotation[i] = fmodf(v->rotation[i], 2.0f * SCOP_PI);
-		i++;
-	}
 	v->position[0] = clamp(v->position[0], -MOVE_LIMIT_XY, MOVE_LIMIT_XY);
 	v->position[1] = clamp(v->position[1], -MOVE_LIMIT_XY, MOVE_LIMIT_XY);
 	v->position[2] = clamp(v->position[2], MOVE_LIMIT_FAR, MOVE_LIMIT_NEAR);
@@ -51,7 +32,6 @@ void	view_update(t_view *v, GLFWwindow *w, float dt)
 		v->spin = fmodf(v->spin + SPIN_SPEED * dt, 2.0f * SCOP_PI);
 }
 
-/* Back to the start: centered and unrotated; a paused spin stays paused */
 void	view_reset(t_view *v)
 {
 	const int	paused = v->paused;
@@ -60,7 +40,7 @@ void	view_reset(t_view *v)
 	v->paused = paused;
 }
 
-/* The spin turns the model around its own vertical axis, inside X and Z */
+/* The spin is applied first, so the model always turns around its own vertical axis */
 t_mat4	view_model_matrix(const t_view *v)
 {
 	t_mat4	m;

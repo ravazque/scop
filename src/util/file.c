@@ -1,18 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   file.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ravazque <ravazque@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/07 15:07:38 by ravazque          #+#    #+#             */
-/*   Updated: 2026/10/07 18:36:17 by ravazque         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "scop.h"
-
-/* Whole files in memory */
 
 static char	*fail(FILE *f, char *buf, const char *path, const char *why)
 {
@@ -23,7 +9,7 @@ static char	*fail(FILE *f, char *buf, const char *path, const char *why)
 	return (NULL);
 }
 
-/* NUL-terminated copy of a regular file; size (optional) skips the NUL */
+/* NUL-terminated copy of a regular file; *size, when asked for, does not count the NUL */
 char	*file_read(const char *path, size_t *size)
 {
 	FILE		*f;
