@@ -1,7 +1,7 @@
 #ifndef VECMATH_H
-#define VECMATH_H
+# define VECMATH_H
 
-#define SCOP_PI	3.14159265358979323846f
+# define SCOP_PI	3.14159265358979323846f
 
 typedef struct s_vec3
 {

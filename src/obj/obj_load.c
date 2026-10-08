@@ -154,8 +154,10 @@ static int	second_pass(t_obj *obj, t_obj_parser *p)
 
 	obj->min_area = OBJ_DEGENERATE_EPSILON * size * size;
 	for (i = 0; i < p->face_count; i++)
+	{
 		if (!obj_parse_face(obj, p, &p->faces[i], (unsigned int)i))
 			return (0);
+	}
 	if (obj->triangle_count == 0)
 		return (obj_error(p, 0, "every face is degenerate (no area)", NULL));
 	if (obj->triangle_count > (size_t)INT_MAX / 3)

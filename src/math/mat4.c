@@ -21,8 +21,10 @@ t_mat4	mat4_mul(t_mat4 a, t_mat4 b)
 
 	memset(&r, 0, sizeof(r));
 	for (i = 0; i < 16; i++)
+	{
 		for (k = 0; k < 4; k++)
 			r.m[i] += a.m[k * 4 + i % 4] * b.m[(i / 4) * 4 + k];
+	}
 	return (r);
 }
 

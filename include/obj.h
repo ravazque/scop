@@ -1,11 +1,11 @@
 #ifndef OBJ_H
-#define OBJ_H
+# define OBJ_H
 
-#include <stddef.h>
-#include "vecmath.h"
+# include <stddef.h>
+# include "vecmath.h"
 
 /* Triangles whose doubled area is below this, times the squared model size, are dropped */
-#define OBJ_DEGENERATE_EPSILON	1e-10f
+# define OBJ_DEGENERATE_EPSILON	1e-10f
 
 typedef struct s_obj_triangle
 {

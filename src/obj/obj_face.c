@@ -80,8 +80,10 @@ int	obj_parse_face(t_obj *obj, t_obj_parser *p, const t_obj_face *face, unsigned
 	cursor = face->text;
 	p->polygon_count = 0;
 	while ((token = obj_token(&cursor)))
+	{
 		if (!add_corner(obj, p, face, token))
 			return (0);
+	}
 	if (p->polygon_count < 3)
 		return (obj_error(p, face->line, "a face needs 3 vertices", NULL));
 	return (obj_triangulate(obj, p, p->polygon_count, id));

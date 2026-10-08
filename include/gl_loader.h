@@ -1,37 +1,37 @@
 #ifndef GL_LOADER_H
-#define GL_LOADER_H
+# define GL_LOADER_H
 
-#include <stddef.h>
+# include <stddef.h>
 
-#define GL_FALSE					0
-#define GL_TRUE						1
-#define GL_TRIANGLES				0x0004
-#define GL_DEPTH_BUFFER_BIT			0x00000100
-#define GL_COLOR_BUFFER_BIT			0x00004000
-#define GL_FRONT_AND_BACK			0x0408
-#define GL_DEPTH_TEST				0x0B71
-#define GL_TEXTURE_2D				0x0DE1
-#define GL_UNSIGNED_BYTE			0x1401
-#define GL_FLOAT					0x1406
-#define GL_RGBA						0x1908
-#define GL_POINT					0x1B00
-#define GL_LINE						0x1B01
-#define GL_FILL						0x1B02
-#define GL_LINEAR					0x2601
-#define GL_LINEAR_MIPMAP_LINEAR		0x2703
-#define GL_TEXTURE_MAG_FILTER		0x2800
-#define GL_TEXTURE_MIN_FILTER		0x2801
-#define GL_TEXTURE_WRAP_S			0x2802
-#define GL_TEXTURE_WRAP_T			0x2803
-#define GL_REPEAT					0x2901
-#define GL_RGBA8					0x8058
-#define GL_TEXTURE0					0x84C0
-#define GL_ARRAY_BUFFER				0x8892
-#define GL_STATIC_DRAW				0x88E4
-#define GL_FRAGMENT_SHADER			0x8B30
-#define GL_VERTEX_SHADER			0x8B31
-#define GL_COMPILE_STATUS			0x8B81
-#define GL_LINK_STATUS				0x8B82
+# define GL_FALSE					0
+# define GL_TRUE					1
+# define GL_TRIANGLES				0x0004
+# define GL_DEPTH_BUFFER_BIT		0x00000100
+# define GL_COLOR_BUFFER_BIT		0x00004000
+# define GL_FRONT_AND_BACK			0x0408
+# define GL_DEPTH_TEST				0x0B71
+# define GL_TEXTURE_2D				0x0DE1
+# define GL_UNSIGNED_BYTE			0x1401
+# define GL_FLOAT					0x1406
+# define GL_RGBA					0x1908
+# define GL_POINT					0x1B00
+# define GL_LINE					0x1B01
+# define GL_FILL					0x1B02
+# define GL_LINEAR					0x2601
+# define GL_LINEAR_MIPMAP_LINEAR	0x2703
+# define GL_TEXTURE_MAG_FILTER		0x2800
+# define GL_TEXTURE_MIN_FILTER		0x2801
+# define GL_TEXTURE_WRAP_S			0x2802
+# define GL_TEXTURE_WRAP_T			0x2803
+# define GL_REPEAT					0x2901
+# define GL_RGBA8					0x8058
+# define GL_TEXTURE0				0x84C0
+# define GL_ARRAY_BUFFER			0x8892
+# define GL_STATIC_DRAW				0x88E4
+# define GL_FRAGMENT_SHADER			0x8B30
+# define GL_VERTEX_SHADER			0x8B31
+# define GL_COMPILE_STATUS			0x8B81
+# define GL_LINK_STATUS				0x8B82
 
 /* OpenGL 4.1 entry points, with the GL types spelled as plain C types */
 typedef void			(*t_gl_viewport)(int x, int y, int width, int height);
@@ -50,7 +50,7 @@ typedef void			(*t_gl_buffer_data)(unsigned int target, ptrdiff_t size, const vo
 typedef void			(*t_gl_delete_buffers)(int n, const unsigned int *buffers);
 typedef void			(*t_gl_enable_attrib)(unsigned int index);
 typedef void			(*t_gl_attrib_pointer)(unsigned int index, int size, unsigned int type, unsigned char normalized,
-					int stride, const void *pointer);
+							int stride, const void *pointer);
 typedef unsigned int	(*t_gl_create_shader)(unsigned int type);
 typedef void			(*t_gl_shader_source)(unsigned int shader, int count, const char *const *string, const int *length);
 typedef void			(*t_gl_compile_shader)(unsigned int shader);
@@ -73,7 +73,7 @@ typedef void			(*t_gl_gen_textures)(int n, unsigned int *textures);
 typedef void			(*t_gl_bind_texture)(unsigned int target, unsigned int texture);
 typedef void			(*t_gl_active_texture)(unsigned int texture);
 typedef void			(*t_gl_tex_image_2d)(unsigned int target, int level, int internalformat, int width, int height,
-					int border, unsigned int format, unsigned int type, const void *pixels);
+							int border, unsigned int format, unsigned int type, const void *pixels);
 typedef void			(*t_gl_tex_parameteri)(unsigned int target, unsigned int pname, int param);
 typedef void			(*t_gl_generate_mipmap)(unsigned int target);
 typedef void			(*t_gl_delete_textures)(int n, const unsigned int *textures);

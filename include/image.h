@@ -1,16 +1,16 @@
 #ifndef IMAGE_H
-#define IMAGE_H
+# define IMAGE_H
 
-#include <stddef.h>
-#include <stdint.h>
+# include <stddef.h>
+# include <stdint.h>
 
-#define BMP_FILE_HEADER		14
-#define BMP_INFO_HEADER		40
-#define BMP_MASKS			54
-#define BMP_MASKS_END		66
-#define BMP_BI_RGB			0
-#define BMP_BI_BITFIELDS	3
-#define BMP_MAX_SIDE		16384
+# define BMP_FILE_HEADER	14
+# define BMP_INFO_HEADER	40
+# define BMP_MASKS			54
+# define BMP_MASKS_END		66
+# define BMP_BI_RGB			0
+# define BMP_BI_BITFIELDS	3
+# define BMP_MAX_SIDE		16384
 
 /* RGBA pixels, rows from bottom to top as OpenGL reads them */
 typedef struct s_image

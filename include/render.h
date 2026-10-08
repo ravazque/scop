@@ -1,19 +1,19 @@
 #ifndef RENDER_H
-#define RENDER_H
+# define RENDER_H
 
-#include <stddef.h>
-#include "vecmath.h"
-#include "obj.h"
-#include "image.h"
+# include <stddef.h>
+# include "vecmath.h"
+# include "obj.h"
+# include "image.h"
 
-#define SHADER_LOG_SIZE		1024
+# define SHADER_LOG_SIZE	1024
 
 /* One vertex per triangle corner: position, face normal and face shade, at the locations of mesh.vert */
-#define MESH_ATTR_POSITION	0
-#define MESH_ATTR_NORMAL	1
-#define MESH_ATTR_SHADE		2
-#define MESH_VERTEX_FLOATS	7
-#define MESH_SHADE_STEP		0.6180339887
+# define MESH_ATTR_POSITION	0
+# define MESH_ATTR_NORMAL	1
+# define MESH_ATTR_SHADE	2
+# define MESH_VERTEX_FLOATS	7
+# define MESH_SHADE_STEP	0.6180339887
 
 typedef struct s_mesh
 {
