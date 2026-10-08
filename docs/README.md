@@ -34,7 +34,6 @@ make O=0                            # optimisation level: 2 by default, or 0, 1,
                                     # texture: resources/kittens.bmp by default
                                     # window size: 1280x720 (HD) to 3840x2160 (4K), 1280x720 by default
 make run                            # ./scop resources/42.obj (ARGS="..." to change it)
-norminette src include              # the C sources follow the 42 Norm
 make clean / fclean / re
 ```
 
@@ -84,7 +83,7 @@ Without the suppression files, a Wayland run reports no definitely lost block. O
 - **Mesh** (`src/gl/mesh.c`): every triangle corner gets its own vertex with its position, the face normal and a gray level per `.obj` face, taken from the golden-ratio sequence so neighboring faces differ. The model is centered on the bounding box of its triangles and scaled into the unit sphere, so any model turns around its center and fits the view.
 - **Transforms** (`src/app/view.c`, `src/math/`): 4x4 column-major matrices, uploaded without transposition. The model matrix is a translation, then rotations around Z and X, then the rotation around the model's own Y axis that carries the automatic spin; the camera uses a look-at view and a perspective projection.
 - **Shading** (`shaders/`): the texture is projected in model space, so it stays on the model while it turns, and keeps the image's proportions. The triplanar mapping blends a projection along each axis by the face normal, each one upright and unmirrored seen from outside. The texture, the mapping and the light switch through 0.8 s smoothstep fades instead of cutting.
-- **OpenGL loader** (`include/gl_loader.h`, `src/gl/gl_loader.c`): a struct with one function pointer per OpenGL 4.1 core function the program calls, filled with `glfwGetProcAddress` once the context exists and returned by `gl()`. No OpenGL header or library is needed to build.
+- **OpenGL loader** (`include/gl_loader.h`, `src/gl/gl_loader.c`): a struct with one function pointer per OpenGL 4.1 core function the program calls, filled from a table of names with `glfwGetProcAddress` once the context exists and returned by `gl()`. No OpenGL header or library is needed to build.
 
 ## Resources
 
