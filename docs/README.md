@@ -4,78 +4,68 @@
 
 ## Description
 
-scop is an introduction to **GPU rendering**: a small program written in **C** with **OpenGL 4.1** that loads a 3D model from a `.obj` file and displays it in a window, in perspective.
-
-The model spins around its own vertical axis and can be rotated and moved along its three axes from the keyboard. Every face of the `.obj` gets its own subtle shade of gray, and one key fades a texture in and out over the model.
+scop is an introduction to GPU rendering: a small program written in C with OpenGL 4.1 that loads a 3D model from a `.obj` file and displays it in a window, in perspective. The model spins around its own vertical axis and can be rotated and moved along its three axes from the keyboard. Every face of the `.obj` gets its own subtle shade of gray, and one key fades a texture in and out over the model.
 
 Apart from the window and the keyboard, handled by GLFW, everything is written from scratch: the `.obj` parser, the vector and matrix math, the shader loading, the BMP texture loader and the OpenGL function loader.
 
-Beyond that, scop:
+As a bonus, scop:
 
-- triangulates concave and non-planar faces by ear clipping, and draws the original Utah teapot exactly like its re-exported version (`resources/extra/` adds a concave star prism and a crown with non-planar faces);
+- triangulates concave and non-planar faces by ear clipping, so the original Utah teapot renders exactly like its re-exported version (`resources/extra/` adds a concave star prism and a crown with non-planar faces);
 - maps the texture triplanar, so no face stretches it, with a key to compare against a single planar projection;
-- has a soft diffuse light, wireframe and point drawing modes, an optional texture argument, and the frame rate in the window title.
+- has a soft diffuse light, wireframe and point drawing modes, an optional texture argument, a window size argument, and the frame rate in the window title.
 
 ## Instructions
 
-### Requirements
+### Dependencies
 
-- A C compiler, `make` and `pkg-config`.
-- GLFW 3 (the only external library, used for the window and the input) and an OpenGL 4.1 driver.
+| Dependency | Version | Debian / Ubuntu | Arch |
+|---|---|---|---|
+| C compiler and GNU Make | C11 | `build-essential` | `base-devel` |
+| `pkg-config` | any | `pkg-config` | `pkgconf` |
+| GLFW 3 | 3.3 or newer, or built by `make` | `libglfw3-dev` | `glfw` |
+| An OpenGL 4.1 driver | Mesa or a vendor driver | installed with the desktop | same |
+| `valgrind` | optional, for `make valgrind` | `valgrind` | `valgrind` |
 
-`make` uses the system GLFW when `pkg-config` finds it. Otherwise it downloads GLFW 3.5.1 into `lib/` with `curl` or `wget`, checks it against a pinned SHA-256 and builds it as a static library with `cmake`, without root. That build needs the X11 (`libx11-dev`, `libxrandr-dev`, `libxinerama-dev`, `libxcursor-dev`, `libxi-dev`, `libxext-dev`) or Wayland (`libwayland-dev`, `libxkbcommon-dev`) development files, and `make` stops naming what is missing. `make fclean` keeps the downloaded sources, so a rebuild needs no network.
+`make` uses the system GLFW when `pkg-config` finds it. Otherwise it downloads GLFW 3.5.1 into `lib/` with `curl` or `wget`, checks it against a pinned SHA-256 and builds it as a static library with `cmake`, without root; that build needs the X11 or Wayland development files, and `make` names whatever is missing. `make install` checks the compiler and `pkg-config` and makes sure GLFW is available.
 
 ### Build and run
 
 ```bash
-make                                # builds ./scop (-O2)
-make O=0                            # optimisation level: 2 by default, or 0, 1, 3, s, g
-./scop <model.obj> [texture.bmp] [width height]
-                                    # texture: resources/kittens.bmp by default
-                                    # window size: 1280x720 (HD) to 3840x2160 (4K), 1280x720 by default
-make run                            # ./scop resources/42.obj (ARGS="..." to change it)
+make install                                      # checks the dependencies, builds GLFW when the system has none
+make                                              # builds ./scop (-O2; O=0, 1, 3, s or g for another level)
+make run                                          # ./scop resources/42.obj (ARGS="..." for another model)
+make valgrind                                     # the same under valgrind, with the suppression files of docs/
 make clean / fclean / re
+./scop <model.obj> [texture.bmp] [width height]
 ```
 
-Run it from the repository root, so `shaders/` is found. The model and texture names need a name before their extension: `.obj`, `model` or `model..obj` are refused. Resizing the window by its border stays within the same 1280x720 to 3840x2160 range.
+The texture defaults to `resources/kittens.bmp` and the window to 1280x720, within 1280x720 (HD) and 3840x2160 (4K), also when it is resized. The program runs from the repository root, where `shaders/` is found. Model and texture names need a name before their extension: `.obj`, `model` or `model..obj` are refused. Every refusal prints one line on standard error and exits with status 1 before any window opens.
 
 | Key | Action |
 |---|---|
-| `W` / `S` | rotate around the model's X axis |
-| `A` / `D` | rotate around the model's Y axis |
-| `Q` / `E` | rotate around the model's Z axis |
-| `←` / `→` | move along X |
-| `↓` / `↑` | move along Y |
-| `F` / `R` | move along Z, away / closer |
-| `T` | apply / remove the texture, with a smooth transition |
-| `U` | switch the texture mapping between triplanar (default, no stretching) and a single planar projection |
-| `L` | turn a soft diffuse light on / off, with a smooth transition |
-| `M` | cycle the drawing mode: filled faces, wireframe, points |
-| `Space` | pause / resume the automatic rotation |
-| `Backspace` | back to the initial position |
-| `H` | show / hide the frame rate and the model path in the window title |
-| `ESC` | quit |
+| `W` / `S`, `A` / `D`, `Q` / `E` | Rotation around the model's X, Y and Z axes |
+| `←` / `→`, `↓` / `↑`, `F` / `R` | Movement along X, Y and Z (away / closer) |
+| `T` | Texture on / off, with a smooth transition |
+| `U` | Texture mapping: triplanar (default) or a single planar projection |
+| `L` | Soft diffuse light on / off, with a smooth transition |
+| `M` | Drawing mode: filled faces, wireframe, points |
+| `Space` | Pause / resume the automatic rotation |
+| `Backspace` | Back to the initial position |
+| `H` | Frame rate and model path in the window title |
+| `ESC` | Quit |
 
-Rotation and movement keys act while held, at a speed that does not depend on the frame rate. Frames follow the monitor's refresh (vsync), so the picture never tears; if the driver ignores vsync, the loop is capped at 240 frames per second. The model is centered on its bounding box and scaled to fit the view, so it always turns around its own center.
-
-The window title is `scop` by default and `scop  /  FPS:<rate> | '<model path>' |` while `H` has it shown, with the path exactly as given on the command line. `Ctrl+C` in the terminal also closes the program cleanly.
+Rotation and movement keys act while held, at a speed that does not depend on the frame rate. Frames follow the monitor's refresh (vsync); when the driver ignores vsync, the loop is capped at 240 frames per second. The model is centered on its bounding box and scaled to fit the view, so it always turns around its own center. `Ctrl+C` in the terminal also closes the program cleanly.
 
 ### Valgrind
 
-```bash
-make valgrind    # accepts ARGS too
-```
-
-The window system, the toolkit that draws the window decorations and the OpenGL driver allocate global state that they keep until the process exits. Two suppression files in `docs/` silence only that code, matched by library, never by a project function:
+The window system, the toolkit that draws the window decorations and the OpenGL driver keep global state until the process exits. The two suppression files in `docs/` silence only that code, matched by library, never by a project function:
 
 | File | Valgrind | Contents |
 |---|---|---|
 | [valgrind.supp](valgrind.supp) | every version | Wayland, X11, GTK / libdecor, GLib, D-Bus, fontconfig, Mesa, NVIDIA, libstdc++ and the glibc loader |
 | [valgrind_recent.supp](valgrind_recent.supp) | 3.22 or newer | Two NVIDIA start-up errors whose kinds (`ReallocZero`, `BadSize`) older versions do not know |
 
-`make valgrind` always loads the first file and adds the second only when the installed valgrind accepts it. `--keep-debuginfo=yes` is required: the Mesa driver is unloaded before the leak check, and without it its frames lose their library name. A clean run ends with every lost and reachable counter at 0 and `ERROR SUMMARY: 0 errors`, with the system GLFW or the static one. No entry matches GLFW itself: it frees its own state, and its frames sit under every callback of the program, so matching them would also hide the program's own leaks.
-
-Without the suppression files, a Wayland run reports no definitely lost block. On X11, libX11 keeps the locale (Xlc), input method and resource-quark caches it builds during `glfwInit` until the process ends, and valgrind reports them as definitely lost; none of them comes from the program.
+`make valgrind` always loads `docs/valgrind.supp` and adds `docs/valgrind_recent.supp` when the installed valgrind accepts it. `--keep-debuginfo=yes` is required: the Mesa driver is unloaded before the leak check, and without it its frames lose their library name. A clean run ends with every lost and reachable counter at 0 and `ERROR SUMMARY: 0 errors`, with the system GLFW or the static one.
 
 ## How it works
 
@@ -100,4 +90,4 @@ Without the suppression files, a Wayland run reports no definitely lost block. O
 
 ### Use of AI
 
-An AI assistant was used as a support tool, under the author's direction and review: to generate and review this README, to write and run tests (generated `.obj` and BMP files, rendered-frame checks, valgrind runs), to migrate the build setup from previous projects (Makefile, GLFW build, valgrind suppressions), and as a coding aid on parts of the implementation (the `.obj` parser, the BMP loader and the shaders).
+An AI assistant was used as a support tool, under the author's direction and review: to generate and review this README, to write and run tests (generated `.obj` and BMP files, rendered-frame checks, valgrind runs), and as a coding aid on parts of the implementation (the `.obj` parser, the BMP loader and the shaders).
