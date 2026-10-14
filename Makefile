@@ -44,9 +44,7 @@ GLFW_CFLAGS		:= -I$(GLFW_SRC)/include
 GLFW_LIBS		= $(shell PKG_CONFIG_PATH=$(GLFW_PREFIX)/lib/pkgconfig pkg-config --static --libs glfw3)
 GLFW_DEP		:= $(GLFW_PREFIX)/lib/libglfw3.a
 GLFW_X11		= $(shell pkg-config --exists x11 xrandr xinerama xcursor xi xext 2>/dev/null && echo ON || echo OFF)
-GLFW_WAYLAND	= $(shell pkg-config --exists wayland-client wayland-cursor \
-					wayland-egl xkbcommon 2>/dev/null \
-					&& command -v wayland-scanner >/dev/null && echo ON || echo OFF)
+GLFW_WAYLAND	= $(shell pkg-config --exists wayland-client wayland-cursor  wayland-egl xkbcommon 2>/dev/null  && command -v wayland-scanner >/dev/null && echo ON || echo OFF)
 endif
 
 VALGRIND		= valgrind
@@ -68,12 +66,14 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(FLAGS_STAMP) | $(GLFW_DEP)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(GLFW_CFLAGS) -MMD -MP -c $< -o $@
 
-# Rewritten only when the flags differ from the last build, so its date is the last flag change.
-$(FLAGS_STAMP): FORCE
-	@mkdir -p $(OBJDIR)
-	@echo '$(CC) $(CFLAGS) $(CPPFLAGS) $(GLFW_CFLAGS)' | cmp -s - $@ || echo '$(CC) $(CFLAGS) $(CPPFLAGS) $(GLFW_CFLAGS)' > $@
+# The stamp holds the compile flags: rewritten while reading the Makefile only when they change, so an
+# unchanged tree has nothing to do; the rule creates it when it is missing.
+COMPILE_FLAGS	= $(CC) $(CFLAGS) $(CPPFLAGS) $(GLFW_CFLAGS)
+$(shell [ ! -f $(FLAGS_STAMP) ] || echo '$(COMPILE_FLAGS)' | cmp -s - $(FLAGS_STAMP) || echo '$(COMPILE_FLAGS)' > $(FLAGS_STAMP))
 
-FORCE:
+$(FLAGS_STAMP):
+	@mkdir -p $(OBJDIR)
+	@echo '$(COMPILE_FLAGS)' > $@
 
 # Downloaded and checked in a temporary folder, then moved in place: a failed download is never built.
 $(GLFW_SRC):
@@ -97,6 +97,12 @@ $(GLFW_DEP): | $(GLFW_SRC)
 	cmake --build $(GLFW_BUILD) --parallel
 	cmake --install $(GLFW_BUILD)
 
+# The compiler and pkg-config are checked here; a missing GLFW is downloaded and built by its own rule.
+install: | $(GLFW_DEP)
+	@command -v $(CC) >/dev/null || { echo "$(CC) not found: install gcc or clang" >&2; exit 1; }
+	@command -v pkg-config >/dev/null || { echo "pkg-config not found: install pkg-config" >&2; exit 1; }
+	@echo "dependencies ready: make run"
+
 run: all
 	./$(NAME) $(ARGS)
 
@@ -111,6 +117,15 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all run valgrind clean fclean re FORCE
+help:
+	@echo "make           build ./scop (O=0|1|2|3|s|g sets the optimisation level, 2 by default)"
+	@echo "make install   check the compiler and pkg-config; build GLFW when the system has none"
+	@echo "make run       build and run ./scop $(ARGS)"
+	@echo "make valgrind  build and run under valgrind with docs/*.supp"
+	@echo "make clean     remove the objects"
+	@echo "make fclean    remove the objects, the binary and the GLFW build"
+	@echo "make re        fclean, then build"
+
+.PHONY: all help install run valgrind clean fclean re
 
 -include $(DEPS)
