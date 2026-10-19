@@ -1,5 +1,3 @@
-*This project has been created as part of the 42 curriculum by ravazque.*
-
 # scop
 
 ## Description
@@ -62,8 +60,8 @@ The window system, the toolkit that draws the window decorations and the OpenGL 
 
 | File | Valgrind | Contents |
 |---|---|---|
-| [valgrind.supp](valgrind.supp) | every version | Wayland, X11, GTK / libdecor, GLib, D-Bus, fontconfig, Mesa, NVIDIA, libstdc++ and the glibc loader |
-| [valgrind_recent.supp](valgrind_recent.supp) | 3.22 or newer | Two NVIDIA start-up errors whose kinds (`ReallocZero`, `BadSize`) older versions do not know |
+| `docs/valgrind.supp` | every version | Wayland, X11, GTK / libdecor, GLib, D-Bus, fontconfig, Mesa, NVIDIA, libstdc++ and the glibc loader |
+| `docs/valgrind_recent.supp` | 3.22 or newer | Two NVIDIA start-up errors whose kinds (`ReallocZero`, `BadSize`) older versions do not know |
 
 `make valgrind` always loads `docs/valgrind.supp` and adds `docs/valgrind_recent.supp` when the installed valgrind accepts it. `--keep-debuginfo=yes` is required: the Mesa driver is unloaded before the leak check, and without it its frames lose their library name. A clean run ends with every lost and reachable counter at 0 and `ERROR SUMMARY: 0 errors`, with the system GLFW or the static one.
 
@@ -74,6 +72,18 @@ The window system, the toolkit that draws the window decorations and the OpenGL 
 - **Transforms** (`src/app/view.c`, `src/math/`): 4x4 column-major matrices, uploaded without transposition. The model matrix is a translation, then rotations around Z and X, then the rotation around the model's own Y axis that carries the automatic spin; the camera uses a look-at view and a perspective projection.
 - **Shading** (`shaders/`): the texture is projected in model space, so it stays on the model while it turns, and keeps the image's proportions. The triplanar mapping blends a projection along each axis by the face normal, each one upright and unmirrored seen from outside. The texture, the mapping and the light switch through 0.8 s smoothstep fades instead of cutting.
 - **OpenGL loader** (`include/gl_loader.h`, `src/gl/gl_loader.c`): a struct with one function pointer per OpenGL 4.1 core function the program calls, filled from a table of names with `glfwGetProcAddress` once the context exists and returned by `gl()`. No OpenGL header or library is needed to build.
+
+### Shared with ft_newton
+
+scop came after ft_newton, a rigid-body physics engine, and builds on parts of it:
+
+- **The `.obj` reader** (`src/obj/`) is ft_newton's: two passes so a face may name a later vertex, corners as `v`, `v/vt`, `v//vn` or `v/vt/vn`, negative indices, ear clipping in the plane of the Newell normal, degenerate faces dropped and `file:line` errors. ft_newton then repairs the surface into a closed one (welding split vertices, closing holes), because its models are colliders that need a volume; scop only draws it, so open models like the Utah teapot load as they are.
+- **A model**: `resources/42.obj`, the one scop shows by default, is also one of ft_newton's mesh colliders.
+- **Small helpers**: reading a whole file (`src/util/file.c`) and growing an array by doubling (`src/util/array.c`).
+- **The rendering basics**: column-major 4x4 matrices uploaded without a transpose, a look-at view and a perspective projection, a flat normal per triangle corner, GLSL shaders read from `shaders/`, a GLFW window whose size argument is checked against bounds and whose title shows the frame rate on `H`.
+- **The way they are built and checked**: `make install` and `make help`, `make O=…` with a flags stamp that rebuilds the objects when the flags change, `make valgrind` with the same two suppression files and `--keep-debuginfo=yes`, and strict loading that refuses a bad file before any window opens.
+
+They differ in what each one needs: scop draws with OpenGL 4.1 through its own function loader, follows the monitor's refresh and adds textures and lighting; ft_newton uses OpenGL 3.3 Core through GLAD and runs a fixed 120 Hz physics step behind a 30 frames per second cap.
 
 ## Resources
 
@@ -87,7 +97,3 @@ The window system, the toolkit that draws the window decorations and the OpenGL 
 - Filippo Tampieri, *Newell's Method for Computing the Plane Equation of a Polygon*, Graphics Gems III, 1992.
 - Ryan Geiss, [Generating Complex Procedural Terrains Using the GPU](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu), GPU Gems 3, chapter 1: triplanar texturing.
 - Texture: [Three innocent kittens](https://www.flickr.com/photos/38709274@N02/14582884739) by iDapinder, Public Domain Dedication (CC0 1.0), cropped to 768x768 and stored as `resources/kittens.bmp`.
-
-### Use of AI
-
-An AI assistant was used as a support tool, under the author's direction and review: to generate and review this README, to write and run tests (generated `.obj` and BMP files, rendered-frame checks, valgrind runs), and as a coding aid on parts of the implementation (the `.obj` parser, the BMP loader and the shaders).
